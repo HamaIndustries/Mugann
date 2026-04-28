@@ -1,41 +1,41 @@
 {
-	"schemaVersion": 1,
-	"id": "mugann",
-	"version": "${version}",
-	"name": "mugann",
-	"description": "This is an example description! Tell everyone what your mod is about!",
-	"authors": [
-		"Me!"
-	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
-	"license": "CC0-1.0",
-	"icon": "assets/mugann/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"symbolics.division.Mugann"
-		],
-		"client": [
-			"symbolics.division.MugannClient"
-		],
-		"fabric-datagen": [
-			"symbolics.division.MugannDataGenerator"
-		]
-	},
-	"mixins": [
-		"mugann.mixins.json",
-		{
-			"config": "mugann.client.mixins.json",
-			"environment": "client"
-		}
-	],
-	"depends": {
-		"fabricloader": ">=0.18.4",
-		"minecraft": "~26.1",
-		"java": ">=25",
-		"fabric-api": "*"
-	}
+  "schemaVersion": 1,
+  "id": "mugann",
+  "version": "${version}",
+  "name": "mugann",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "Me!"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/mugann/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "symbolics.division.mugann.Mugann"
+    ],
+    "client": [
+      "symbolics.division.mugann.client.MugannClient"
+    ],
+    "fabric-datagen": [
+      "symbolics.division.mugann.client.MugannDataGenerator"
+    ]
+  },
+  "mixins": [
+    "mugann.mixins.json",
+    {
+      "config": "mugann.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "minecraft": "~26.1",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
 }

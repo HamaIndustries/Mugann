@@ -1,16 +1,14 @@
 {
   "textures": [
-    "minecraft:cherry_0",
-    "minecraft:cherry_1",
-    "minecraft:cherry_2",
-    "minecraft:cherry_3",
-    "minecraft:cherry_4",
-    "minecraft:cherry_5",
-    "minecraft:cherry_6",
-    "minecraft:cherry_7",
-    "minecraft:cherry_8",
-    "minecraft:cherry_9",
-    "minecraft:cherry_10",
-    "minecraft:cherry_11"
+    "mugann:g3",
+    "mugann:g8",
+    "mugann:g12",
+    "mugann:g16",
+    "mugann:g20",
+    "mugann:g20",
+    "mugann:g20",
+    "mugann:g20",
+    "mugann:g20"
   ]
 }
+

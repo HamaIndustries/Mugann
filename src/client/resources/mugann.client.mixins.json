@@ -1,11 +1,14 @@
 {
   "required": true,
-  "package": "symbolics.division.mixin.client",
+  "package": "symbolics.division.mugann.client.mixin",
   "compatibilityLevel": "JAVA_25",
-  "client": [
-    "ClientPacketListenerMixin"
-  ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+    "CameraMixin",
+    "ClientPacketListenerMixin",
+    "EntityRendererMixin",
+    "GameRendererMixin"
+  ]
 }
