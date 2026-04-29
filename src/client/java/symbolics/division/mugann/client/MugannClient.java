@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -20,12 +21,14 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import symbolics.division.mugann.GommageEffect;
 import symbolics.division.mugann.Mugann;
 
-public class MugannClient implements ClientModInitializer {
+public class MugannClient implements ClientModInitializer, ClientTickEvents.StartLevelTick {
 	@Override
 	public void onInitializeClient() {
 		ParticleProviderRegistry.getInstance().register(Mugann.GOMMAGE_PARTICLE, GommageParticle.Provider::new);
@@ -38,6 +41,16 @@ public class MugannClient implements ClientModInitializer {
 
 
 //		HudStatusBarHeightRegistry.addLeft(Mugann.id("fate_bar"), HudStatusBarHeightRegistryImpl.);
+		ClientTickEvents.START_LEVEL_TICK.register(this);
+	}
+
+	@Override
+	public void onStartTick(ClientLevel level) {
+		var player = Minecraft.getInstance().player;
+		if (player == null || player.tickCount % 10 != 0 || !player.hasAttached(Mugann.CURSE)) return;
+		if (Mth.sqrt(player.getAttached(Mugann.CURSE)) > player.getRandom().nextFloat()) {
+			player.playSound(SoundEvents.AMBIENT_BASALT_DELTAS_LOOP.value(), 0.5f, 0.1f + player.getRandom().nextFloat() * 0.4f);
+		}
 	}
 
 	public static final class ShatterParticle extends SimpleAnimatedParticle {

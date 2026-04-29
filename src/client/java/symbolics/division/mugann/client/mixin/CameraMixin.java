@@ -68,9 +68,9 @@ public abstract class CameraMixin {
 	@Unique
 	void mugann$tickRotation(float timeSinceLastTick) {
 		if (!MugannClient.displaced() || oldCameraRotation == null) return;
-		this.setRotation(overrideRotation.x, overrideRotation.y);
+		setRotation(overrideRotation.y, overrideRotation.x);
 		var newRotation = mugann$lerpRotation(oldCameraRotation, overrideRotation, timeSinceLastTick);
-		setRotation(newRotation.x, newRotation.y);
+		setRotation(newRotation.y, newRotation.x);
 	}
 
 
@@ -83,6 +83,7 @@ public abstract class CameraMixin {
 
 	}
 
+	// source: Tomate, Map Utils, whatever the license is there
 	@Inject(method = "tick", at = @At("HEAD"))
 	void tick(CallbackInfo ci) {
 		lastTimeSinceLastTick = 0;
@@ -94,7 +95,7 @@ public abstract class CameraMixin {
 		if (disp != null) {
 			this.detached = true;
 			overridePosition = disp;
-			overrideRotation = entity.position().subtract(disp).rotation();
+			overrideRotation = entity.getEyePosition().subtract(disp).rotation();
 		} else {
 			return;
 		}
@@ -111,24 +112,5 @@ public abstract class CameraMixin {
 	@Unique
 	private static Vec2 mugann$lerpRotation(Vec2 start, Vec2 end, float t) {
 		return new Vec2(Mth.rotLerp(t, start.x, end.x), Mth.rotLerp(t, start.y, end.y));
-	}
-
-	@Unique
-	private static Vec3 mugann$interpolateCatmullRom(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, double u) {
-		double u2 = u * u;
-		double u3 = u2 * u;
-
-		double[] coefficients = {
-				-0.5 * u3 + u2 - 0.5 * u,
-				1.5 * u3 - 2.5 * u2 + 1,
-				-1.5 * u3 + 2.0 * u2 + 0.5 * u,
-				0.5 * u3 - 0.5 * u2
-		};
-
-		return new Vec3(
-				coefficients[0] * p0.x + coefficients[1] * p1.x + coefficients[2] * p2.x + coefficients[3] * p3.x,
-				coefficients[0] * p0.y + coefficients[1] * p1.y + coefficients[2] * p2.y + coefficients[3] * p3.y,
-				coefficients[0] * p0.z + coefficients[1] * p1.z + coefficients[2] * p2.z + coefficients[3] * p3.z
-		);
 	}
 }

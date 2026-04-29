@@ -72,7 +72,7 @@ public class Mugann implements ModInitializer {
 					entity, RANGE, e -> PiercingWeapon.canHitEntity(entity, e), ClipContext.Block.COLLIDER
 			);
 
-			level.playSound(null, entity.blockPosition(), SoundEvents.CREAKING_DEATH, SoundSource.PLAYERS, 4f, 1.8f);
+			level.playSound(null, entity.blockPosition(), SoundEvents.BELL_RESONATE, SoundSource.PLAYERS, 4f, 1.8f);
 
 			if (!level.isClientSide()) {
 				Vec3 prevPos = entity.position().add(entity.getEyePosition().subtract(entity.position()).scale(0.5));
@@ -132,10 +132,10 @@ public class Mugann implements ModInitializer {
 		@Override
 		public void onUseTick(Level level, LivingEntity entity, ItemStack itemStack, int ticksRemaining) {
 			super.onUseTick(level, entity, itemStack, ticksRemaining);
-			var dir = entity.getLookAngle().scale(-5);
+			var dir = entity.getLookAngle().scale(-1);
 			if (ticksRemaining % 2 == 0) {
 				if (level instanceof ServerLevel sv) {
-					sv.sendParticles(new ShatterParticleOptions(dir), entity.getX(), entity.getY() + 0.3, entity.getZ(), 2, 1, 0.1, 1, 1);
+					sv.sendParticles(new ShatterParticleOptions(dir), entity.getX(), entity.getY() + 0.3, entity.getZ(), 1, 1, 0.1, 1, 1);
 				}
 			}
 		}
@@ -180,7 +180,7 @@ public class Mugann implements ModInitializer {
 				if (entity.tickCount % 10 == 0) {
 					level.sendParticles(GOMMAGE_PARTICLE, entity.getX(), entity.getY() + 1, entity.getZ(), (int) (2 * (1 + v) * (1 + v)), 0.3, 0.3, 0.3, 0.1);
 					if (entity instanceof LivingEntity living) {
-						((LivingEntity) entity).addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 100, 2, false, false), living);
+						((LivingEntity) entity).addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 100, 3, false, false), living);
 						if (living instanceof ServerPlayer player) {
 							player.setGameMode(GameType.ADVENTURE);
 						}

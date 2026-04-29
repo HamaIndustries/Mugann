@@ -10,5 +10,8 @@
     "ClientPacketListenerMixin",
     "EntityRendererMixin",
     "GameRendererMixin"
+  ],
+  "mixins": [
+    "LocalPlayerMixin"
   ]
 }
