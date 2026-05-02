@@ -9,12 +9,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.WaterFluid;
 import org.jspecify.annotations.Nullable;
+import symbolics.division.mugann.MugannBlocks;
 
 import static symbolics.division.mugann.MugannBlocks.FLOWING_MOKSHA;
 import static symbolics.division.mugann.MugannBlocks.SOURCE_MOKSHA;
@@ -42,8 +44,7 @@ public abstract class MokshaResidue extends WaterFluid {
 
 	@Override
 	public BlockState createLegacyBlock(FluidState fluidState) {
-		return null;
-//		return MugannBlocks.MOKSHA.defaultBlockState().setValue(LiquidBlock.LEVEL, getLegacyLevel(fluidState));
+		return MugannBlocks.MOKSHA.defaultBlockState().setValue(LiquidBlock.LEVEL, getLegacyLevel(fluidState));
 	}
 
 	@Override

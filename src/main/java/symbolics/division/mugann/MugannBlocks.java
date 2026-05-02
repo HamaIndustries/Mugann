@@ -5,14 +5,18 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.PushReaction;
 import symbolics.division.mugann.block.*;
 
 import java.util.function.Function;
@@ -60,21 +64,21 @@ public class MugannBlocks {
 			BuiltInRegistries.FLUID, Mugann.id("flowing_moksha_residue"), new MokshaResidue.Flowing()
 	);
 
-//	public static final Block MOKSHA = register(
-//			"moksha_residue",
-//			properties -> new LiquidBlock(SOURCE_MOKSHA, properties),
-//			BlockBehaviour.Properties.of()
-//					.mapColor(DyeColor.BLACK)
-//					.replaceable()
-////					.noCollision()
-//					.strength(100)
-//					.pushReaction(PushReaction.DESTROY)
-//					.noLootTable()
+	public static final Block MOKSHA = register(
+			"moksha_residue",
+			properties -> new LiquidBlock(SOURCE_MOKSHA, properties),
+			BlockBehaviour.Properties.of()
+					.mapColor(DyeColor.BLACK)
+					.replaceable()
+//					.noCollision()
+					.strength(100)
+					.pushReaction(PushReaction.DESTROY)
+					.noLootTable()
+					.liquid()
+					.sound(SoundType.EMPTY),
+			false
+	);
 
-	/// /					.liquid()
-//					.sound(SoundType.EMPTY),
-//			false
-//	);
 	public static void init() {
 		for (FluidState state : SOURCE_MOKSHA.getStateDefinition().getPossibleStates()) {
 			Fluid.FLUID_STATE_REGISTRY.add(state);
