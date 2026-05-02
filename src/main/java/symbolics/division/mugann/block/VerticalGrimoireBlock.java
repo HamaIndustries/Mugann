@@ -37,7 +37,7 @@ public class VerticalGrimoireBlock extends GrimoireBlock {
 
 		BlockState state = super.getStateForPlacement(ctx);
 		Vec3 center = ctx.getClickedPos().getCenter();
-		state = state.setValue(FACING, ctx.getNearestLookingDirection().getClockWise());
+		state = state.setValue(FACING, ctx.getHorizontalDirection().getClockWise());
 
 		if (state.getValue(FACING).getAxis() == Direction.Axis.X) {
 			return ctx.getClickLocation().x > center.x

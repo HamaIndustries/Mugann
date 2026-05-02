@@ -3,9 +3,10 @@
   "id": "mugann",
   "version": "${version}",
   "name": "mugann",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "Dark blocks for dark studies",
   "authors": [
-    "Me!"
+    "hama",
+    "Keyberries"
   ],
   "contact": {
     "homepage": "https://fabricmc.net/",

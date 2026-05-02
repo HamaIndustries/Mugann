@@ -21,18 +21,18 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.Identifier;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import symbolics.division.mugann.GommageEffect;
 import symbolics.division.mugann.Mugann;
+import symbolics.division.mugann.MugannSounds;
 
 public class MugannClient implements ClientModInitializer, ClientTickEvents.StartLevelTick {
 	@Override
 	public void onInitializeClient() {
 		ParticleProviderRegistry.getInstance().register(Mugann.GOMMAGE_PARTICLE, GommageParticle.Provider::new);
 		ParticleProviderRegistry.getInstance().register(Mugann.SHATTER_PARTICLE, GommageParticle.DashProvider::new);
+		ParticleProviderRegistry.getInstance().register(Mugann.HEALING_PARTICLE, GommageParticle.HealingProvider::new);
 		EntityRenderers.register(Mugann.SLICE, SliceRenderer::new);
 
 //		HudElementRegistry.replaceElement(VanillaHudElements.EXPERIENCE_LEVEL, OmaeWaRenderer::replaceBar);
@@ -48,8 +48,11 @@ public class MugannClient implements ClientModInitializer, ClientTickEvents.Star
 	public void onStartTick(ClientLevel level) {
 		var player = Minecraft.getInstance().player;
 		if (player == null || player.tickCount % 10 != 0 || !player.hasAttached(Mugann.CURSE)) return;
-		if (Mth.sqrt(player.getAttached(Mugann.CURSE)) > player.getRandom().nextFloat()) {
-			player.playSound(SoundEvents.AMBIENT_BASALT_DELTAS_LOOP.value(), 0.5f, 0.1f + player.getRandom().nextFloat() * 0.4f);
+		if (player.getAttached(Mugann.CURSE) > player.getRandom().nextFloat()) {
+			player.playSound(MugannSounds.SUN, 0.3f * (1 - player.getAttached(Mugann.CURSE)), 0.1f + 1 - player.getAttached(Mugann.CURSE));
+		}
+		if (player.getAttached(Mugann.CURSE) > 0.95 && player.hasAttached(Mugann.HEALING)) {
+			System.exit(0);
 		}
 	}
 
@@ -104,13 +107,16 @@ public class MugannClient implements ClientModInitializer, ClientTickEvents.Star
 		protected float zDir = 0;
 		protected boolean shatter = false;
 
-		protected GommageParticle(ClientLevel level, double x, double y, double z, TextureAtlasSprite sprite, float fallAcceleration, float sideAcceleration, boolean swirl, boolean flowAway, float scale, float startVelocity) {
+		protected GommageParticle(ClientLevel level, double x, double y, double z, TextureAtlasSprite sprite, float fallAcceleration, float sideAcceleration, boolean swirl, boolean flowAway, float scale, float startVelocity, boolean healing) {
 			super(level, x, y, z, sprite, fallAcceleration, sideAcceleration, swirl, flowAway, scale, startVelocity);
 			this.gravity = -0.0001f;
+			if (healing) {
+				this.setColor(0, 0, 0);
+			}
 		}
 
 		protected GommageParticle(ClientLevel level, double x, double y, double z, TextureAtlasSprite sprite, float fallAcceleration, float sideAcceleration, boolean swirl, boolean flowAway, float scale, float startVelocity, float xDir, float yDir, float zDir) {
-			this(level, x, y, z, sprite, fallAcceleration, sideAcceleration, swirl, flowAway, scale, startVelocity);
+			this(level, x, y, z, sprite, fallAcceleration, sideAcceleration, swirl, flowAway, scale, startVelocity, false);
 			this.xDir = xDir + random.nextFloat() * 0.5f;
 			this.yDir = yDir + random.nextFloat() * 0.5f;
 			this.zDir = zDir + random.nextFloat() * 0.2f;
@@ -149,7 +155,7 @@ public class MugannClient implements ClientModInitializer, ClientTickEvents.Star
 					final double zAux,
 					final RandomSource random
 			) {
-				return new GommageParticle(level, x, y, z, this.sprites.get(random), 0.001F, 0.5F, true, true, 2.0F, 0.0F);
+				return new GommageParticle(level, x, y, z, this.sprites.get(random), 0.001F, 0.5F, true, true, 2.0F, 0.0F, false);
 			}
 		}
 
@@ -172,6 +178,28 @@ public class MugannClient implements ClientModInitializer, ClientTickEvents.Star
 					final RandomSource random
 			) {
 				return new GommageParticle(level, x, y, z, this.sprites.get(random), 2F, 0.5F, false, false, 2.0F, 0.0F, (float) options.dir().x, (float) options.dir().y, (float) options.dir().z);
+			}
+		}
+
+		public static class HealingProvider implements ParticleProvider<SimpleParticleType> {
+			private final SpriteSet sprites;
+
+			public HealingProvider(final SpriteSet sprites) {
+				this.sprites = sprites;
+			}
+
+			public Particle createParticle(
+					final SimpleParticleType options,
+					final ClientLevel level,
+					final double x,
+					final double y,
+					final double z,
+					final double xAux,
+					final double yAux,
+					final double zAux,
+					final RandomSource random
+			) {
+				return new GommageParticle(level, x, y, z, this.sprites.get(random), 0.001F, 0.5F, true, true, 2.0F, 0.0F, true);
 			}
 		}
 

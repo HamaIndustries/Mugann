@@ -10,10 +10,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
-import symbolics.division.mugann.block.CurtainBlock;
-import symbolics.division.mugann.block.DharmakirtianBlock;
-import symbolics.division.mugann.block.GrimoireBlock;
-import symbolics.division.mugann.block.VerticalGrimoireBlock;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import symbolics.division.mugann.block.*;
 
 import java.util.function.Function;
 
@@ -52,8 +52,36 @@ public class MugannBlocks {
 			true
 	);
 
-	public static void init() {
+	public static final FlowingFluid SOURCE_MOKSHA = Registry.register(
+			BuiltInRegistries.FLUID, Mugann.id("moksha_residue"), new MokshaResidue.Source()
+	);
 
+	public static final FlowingFluid FLOWING_MOKSHA = Registry.register(
+			BuiltInRegistries.FLUID, Mugann.id("flowing_moksha_residue"), new MokshaResidue.Flowing()
+	);
+
+//	public static final Block MOKSHA = register(
+//			"moksha_residue",
+//			properties -> new LiquidBlock(SOURCE_MOKSHA, properties),
+//			BlockBehaviour.Properties.of()
+//					.mapColor(DyeColor.BLACK)
+//					.replaceable()
+////					.noCollision()
+//					.strength(100)
+//					.pushReaction(PushReaction.DESTROY)
+//					.noLootTable()
+
+	/// /					.liquid()
+//					.sound(SoundType.EMPTY),
+//			false
+//	);
+	public static void init() {
+		for (FluidState state : SOURCE_MOKSHA.getStateDefinition().getPossibleStates()) {
+			Fluid.FLUID_STATE_REGISTRY.add(state);
+		}
+		for (FluidState state : FLOWING_MOKSHA.getStateDefinition().getPossibleStates()) {
+			Fluid.FLUID_STATE_REGISTRY.add(state);
+		}
 	}
 
 	// Thank you fabric wiki copyright fabric wiki Attribution-NonCommercial-ShareAlike 4.0 International

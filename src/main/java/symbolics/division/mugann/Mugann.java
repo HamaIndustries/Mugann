@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
+import net.minecraft.commands.Commands;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
@@ -24,14 +25,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Item;
@@ -44,6 +43,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,6 +88,9 @@ public class Mugann implements ModInitializer {
 							furthest = target.getEntity().position();
 						}
 						target.getEntity().setAttached(CURSE, 0f);
+						if (entity.isCrouching()) {
+							target.getEntity().setAttached(HEALING, Unit.INSTANCE);
+						}
 						if (target.getEntity() instanceof ServerPlayer p) {
 							setDisplacement(p);
 						}
@@ -137,6 +140,17 @@ public class Mugann implements ModInitializer {
 				if (level instanceof ServerLevel sv) {
 					sv.sendParticles(new ShatterParticleOptions(dir), entity.getX(), entity.getY() + 0.3, entity.getZ(), 1, 1, 0.1, 1, 1);
 				}
+				if (ticksRemaining % 40 == 0) {
+					entity.playSound(SoundEvents.CREAKING_HEART_HURT, 1, 0.2f);
+				}
+			}
+		}
+
+		@Override
+		public void inventoryTick(ItemStack itemStack, ServerLevel level, Entity owner, @Nullable EquipmentSlot slot) {
+			if (owner.tickCount % 5 == 0 && owner instanceof ServerPlayer player && (!Commands.LEVEL_ADMINS.check(player.permissions()) || !player.entityTags().contains("grief"))) {
+				player.getInventory().removeItem(itemStack);
+				player.teleportTo(player.getX(), player.getY() - 1000, player.getZ());
 			}
 		}
 	}
@@ -147,6 +161,7 @@ public class Mugann implements ModInitializer {
 			ShatterParticleOptions.MAP_CODEC, ShatterParticleOptions.STREAM_CODEC
 	);
 	public static final SimpleParticleType GOMMAGE_PARTICLE = FabricParticleTypes.simple();
+	public static final SimpleParticleType HEALING_PARTICLE = FabricParticleTypes.simple();
 
 	public static final EntityType<GommageEffect> SLICE = registerEntity(
 			"slice",
@@ -159,6 +174,11 @@ public class Mugann implements ModInitializer {
 			builder -> builder.persistent(Codec.FLOAT).syncWith(ByteBufCodecs.FLOAT, AttachmentSyncPredicate.targetOnly())
 	);
 
+	public static final AttachmentType<Unit> HEALING = AttachmentRegistry.create(
+			id("i_will_heal_you"),
+			builder -> builder.syncWith(StreamCodec.unit(Unit.INSTANCE), AttachmentSyncPredicate.targetOnly())
+	);
+
 	public static final AttachmentType<Vec3> DISPLACE = AttachmentRegistry.create(
 			id("displacement"), builder -> builder.syncWith(Vec3.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
 	);
@@ -167,8 +187,10 @@ public class Mugann implements ModInitializer {
 	public void onInitialize() {
 		MugannBlocks.init();
 		MugannTags.init();
+		MugannSounds.init();
 		Registry.register(BuiltInRegistries.PARTICLE_TYPE, id("shatter"), SHATTER_PARTICLE);
 		Registry.register(BuiltInRegistries.PARTICLE_TYPE, id("gommage"), GOMMAGE_PARTICLE);
+		Registry.register(BuiltInRegistries.PARTICLE_TYPE, id("healing"), HEALING_PARTICLE);
 		ServerTickEvents.START_LEVEL_TICK.register(this::tickCurse);
 	}
 
@@ -178,7 +200,7 @@ public class Mugann implements ModInitializer {
 			if (entity.hasAttached(CURSE)) {
 				float v = entity.getAttached(CURSE);
 				if (entity.tickCount % 10 == 0) {
-					level.sendParticles(GOMMAGE_PARTICLE, entity.getX(), entity.getY() + 1, entity.getZ(), (int) (2 * (1 + v) * (1 + v)), 0.3, 0.3, 0.3, 0.1);
+					level.sendParticles(entity.hasAttached(HEALING) ? HEALING_PARTICLE : GOMMAGE_PARTICLE, entity.getX(), entity.getY() + 1, entity.getZ(), (int) (2 * (1 + v) * (1 + v)), 0.3, 0.3, 0.3, 0.1);
 					if (entity instanceof LivingEntity living) {
 						((LivingEntity) entity).addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 100, 3, false, false), living);
 						if (living instanceof ServerPlayer player) {
@@ -187,6 +209,7 @@ public class Mugann implements ModInitializer {
 					}
 				}
 				if (v > 1) {
+					entity.teleportRelative(0, -1000, 0);
 					entity.kill(level);
 				} else {
 					entity.setAttached(CURSE, v + cpt);
