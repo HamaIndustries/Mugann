@@ -1,0 +1,49 @@
+{
+  "variants": {
+    "facing=east,type=bottom": {
+      "model": "mugann:block/grimoire_insightful_bottom",
+      "y": 90
+    },
+    "facing=east,type=double": {
+      "model": "mugann:block/grimoire_insightful_full",
+      "y": 90
+    },
+    "facing=east,type=top": {
+      "model": "mugann:block/grimoire_insightful_top",
+      "y": 90
+    },
+    "facing=north,type=bottom": {
+      "model": "mugann:block/grimoire_insightful_bottom"
+    },
+    "facing=north,type=double": {
+      "model": "mugann:block/grimoire_insightful_full"
+    },
+    "facing=north,type=top": {
+      "model": "mugann:block/grimoire_insightful_top"
+    },
+    "facing=south,type=bottom": {
+      "model": "mugann:block/grimoire_insightful_bottom",
+      "y": 180
+    },
+    "facing=south,type=double": {
+      "model": "mugann:block/grimoire_insightful_full",
+      "y": 180
+    },
+    "facing=south,type=top": {
+      "model": "mugann:block/grimoire_insightful_top",
+      "y": 180
+    },
+    "facing=west,type=bottom": {
+      "model": "mugann:block/grimoire_insightful_bottom",
+      "y": 270
+    },
+    "facing=west,type=double": {
+      "model": "mugann:block/grimoire_insightful_full",
+      "y": 270
+    },
+    "facing=west,type=top": {
+      "model": "mugann:block/grimoire_insightful_top",
+      "y": 270
+    }
+  }
+}

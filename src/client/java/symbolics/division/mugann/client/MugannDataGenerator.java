@@ -17,6 +17,7 @@ import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import symbolics.division.mugann.Mugann;
@@ -56,6 +57,10 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 
 			for (String id : MugannBlocks.grimTypes) {
 				grimoire(MugannBlocks.GRIMS.get(id), MugannBlocks.VGRIMS.get(id), blockModelGenerators);
+			}
+
+			for (String id : MugannBlocks.ladderTypes) {
+				ladder(MugannBlocks.LADDERS.get(id), blockModelGenerators);
 			}
 		}
 
@@ -106,10 +111,15 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 			generators.blockStateOutput.accept(vertModel);
 			generators.registerSimpleItemModel(block, BuiltInRegistries.BLOCK.getKey(block));
 			generators.registerSimpleItemModel(vertical, BuiltInRegistries.BLOCK.getKey(vertical));
+
 		}
 
 		private static ModelTemplate createModelTemplate(final String id, final String suffix, final TextureSlot... slots) {
 			return new ModelTemplate(Optional.of(Mugann.id(id)), Optional.empty(), slots);
+		}
+
+		private void ladder(Block block, BlockModelGenerators gen) {
+			gen.createNonTemplateModelBlock(block, Blocks.LADDER);
 		}
 
 		@Override

@@ -1,16 +1,13 @@
 package symbolics.division.mugann;
 
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LiquidBlock;
-import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.material.FlowingFluid;
@@ -19,11 +16,15 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.PushReaction;
 import symbolics.division.mugann.block.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 public class MugannBlocks {
+
+	public static final List<Block> ALL_BLOCKS = new ArrayList<>();
 
 	public static final Block RED_CURTAIN = register("red_curtain",
 			properties -> new CurtainBlock(BlockSetType.CRIMSON, properties),
@@ -46,7 +47,7 @@ public class MugannBlocks {
 	);
 
 	public static final String[] grimTypes = {
-			"album", "botany", "eye", "key", "library", "tattered", "tome", "written"
+			"album", "botany", "eye", "key", "library", "tattered", "tome", "written", "insightful"
 	};
 
 	public static final Map<String, Block> GRIMS = new HashMap<>();
@@ -57,6 +58,15 @@ public class MugannBlocks {
 			GRIMS.put(id, grimoire(id));
 			VGRIMS.put(id, grimoireVert(id));
 		}
+	}
+
+	public static final String[] ladderTypes = {
+			"askew", "inlaid", "rigid"
+	};
+	public static final Map<String, Block> LADDERS = new HashMap<>();
+
+	static {
+		for (String id : ladderTypes) LADDERS.put(id, ladder(id));
 	}
 
 	public static final FlowingFluid SOURCE_MOKSHA = Registry.register(
@@ -82,15 +92,6 @@ public class MugannBlocks {
 			false
 	);
 
-	public static void init() {
-		for (FluidState state : SOURCE_MOKSHA.getStateDefinition().getPossibleStates()) {
-			Fluid.FLUID_STATE_REGISTRY.add(state);
-		}
-		for (FluidState state : FLOWING_MOKSHA.getStateDefinition().getPossibleStates()) {
-			Fluid.FLUID_STATE_REGISTRY.add(state);
-		}
-	}
-
 	// Thank you fabric wiki copyright fabric wiki Attribution-NonCommercial-ShareAlike 4.0 International
 	private static Block register(String name, Function<BlockBehaviour.Properties, Block> blockFactory, BlockBehaviour.Properties settings, boolean shouldRegisterItem) {
 		ResourceKey<Block> blockKey = blockKey(name);
@@ -101,6 +102,7 @@ public class MugannBlocks {
 			Registry.register(BuiltInRegistries.ITEM, itemKey, blockItem);
 		}
 
+		ALL_BLOCKS.add(block);
 		return Registry.register(BuiltInRegistries.BLOCK, blockKey, block);
 	}
 
@@ -128,5 +130,36 @@ public class MugannBlocks {
 				BlockBehaviour.Properties.of(),
 				true
 		);
+	}
+
+	private static Block ladder(String id) {
+		return register(
+				"ladder_" + id,
+				LadderBlock::new,
+				BlockBehaviour.Properties.of().forceSolidOff().strength(0.4f).sound(SoundType.LADDER).noOcclusion().pushReaction(PushReaction.DESTROY),
+				true
+		);
+	}
+
+	public static final ResourceKey<CreativeModeTab> CREATIVE_TAB_KEY = ResourceKey.create(
+			BuiltInRegistries.CREATIVE_MODE_TAB.key(), Mugann.id("items")
+	);
+
+	public static final CreativeModeTab CREATIVE_TAB = FabricCreativeModeTab.builder()
+			.icon(() -> new ItemStack(GRIMS.get("album")))
+			.title(Component.translatable("creativeTab.mugann"))
+			.displayItems((params, output) -> {
+				for (Block b : ALL_BLOCKS) output.accept(b.asItem().getDefaultInstance());
+			})
+			.build();
+
+	public static void init() {
+		for (FluidState state : SOURCE_MOKSHA.getStateDefinition().getPossibleStates()) {
+			Fluid.FLUID_STATE_REGISTRY.add(state);
+		}
+		for (FluidState state : FLOWING_MOKSHA.getStateDefinition().getPossibleStates()) {
+			Fluid.FLUID_STATE_REGISTRY.add(state);
+		}
+//		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, CREATIVE_TAB_KEY, CREATIVE_TAB);
 	}
 }
