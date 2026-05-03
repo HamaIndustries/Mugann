@@ -1,0 +1,7 @@
+{
+  "parent": "mugann:block/directional_slab_bottom",
+  "textures": {
+    "particle": "mugann:block/grimoire_key",
+    "texture": "mugann:block/grimoire_key"
+  }
+}

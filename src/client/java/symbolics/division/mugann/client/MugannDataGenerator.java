@@ -10,12 +10,14 @@ import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ModelTemplate;
-import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import symbolics.division.mugann.Mugann;
@@ -32,6 +34,11 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 	}
 
 	public static final class ModelProvider extends FabricModelProvider {
+
+		ModelTemplate dirSlabTop = createModelTemplate("block/directional_slab_top", "_top", TextureSlot.PARTICLE, TextureSlot.TEXTURE);
+		ModelTemplate dirSlabBottom = createModelTemplate("block/directional_slab_bottom", "_bottom", TextureSlot.PARTICLE, TextureSlot.TEXTURE);
+		ModelTemplate dirSlabFull = createModelTemplate("block/directional_slab_full", "_full", TextureSlot.PARTICLE, TextureSlot.TEXTURE);
+
 		public ModelProvider(FabricPackOutput output) {
 			super(output);
 		}
@@ -47,30 +54,32 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 			curtain(MugannBlocks.RED_CURTAIN, blockModelGenerators);
 			blockModelGenerators.createTrivialCube(MugannBlocks.HYPERTHETICAL_DHARMAKIRTIAN);
 			blockModelGenerators.createTrivialCube(MugannBlocks.HYPOTHETICAL_DHARMAKIRTIAN);
-			grimoire(MugannBlocks.GRIMOIRE, MugannBlocks.GRIMOIRE_VERTICAL, blockModelGenerators);
-//			blockModelGenerators.createNonTemplateModelBlock(MugannBlocks.MOKSHA, Blocks.WATER);
+
+			for (String id : MugannBlocks.grimTypes) {
+				grimoire(MugannBlocks.GRIMS.get(id), MugannBlocks.VGRIMS.get(id), blockModelGenerators);
+			}
+
+			for (String id : MugannBlocks.ladderTypes) {
+				ladder(MugannBlocks.LADDERS.get(id), blockModelGenerators);
+			}
 		}
+
 
 		private void curtain(Block block, BlockModelGenerators blockModelGenerators) {
 			blockModelGenerators.createOrientableTrapdoor(block);
 		}
 
 		private void grimoire(Block block, Block vertical, BlockModelGenerators generators) {
-			TextureMapping fullBlockTextures = new TextureMapping()
-					.put(TextureSlot.PARTICLE, TextureMapping.getBlockTexture(block, "_north"))
-					.put(TextureSlot.DOWN, TextureMapping.getBlockTexture(block, "_down"))
-					.put(TextureSlot.UP, TextureMapping.getBlockTexture(block, "_up"))
-					.put(TextureSlot.NORTH, TextureMapping.getBlockTexture(block, "_north"))
-					.put(TextureSlot.SOUTH, TextureMapping.getBlockTexture(block, "_south"))
-					.put(TextureSlot.EAST, TextureMapping.getBlockTexture(block, "_east"))
-					.put(TextureSlot.WEST, TextureMapping.getBlockTexture(block, "_west"));
+			Material mat = new Material(BuiltInRegistries.BLOCK.getKey(block).withPrefix("block/"));
 
-			ModelTemplate dirSlabTop = createModelTemplate("block/directional_slab_top", "_top", TextureSlot.PARTICLE, TextureSlot.NORTH, TextureSlot.SOUTH, TextureSlot.EAST, TextureSlot.WEST, TextureSlot.UP, TextureSlot.DOWN);
-			ModelTemplate dirSlabBottom = createModelTemplate("block/directional_slab_bottom", "_bottom", TextureSlot.PARTICLE, TextureSlot.NORTH, TextureSlot.SOUTH, TextureSlot.EAST, TextureSlot.WEST, TextureSlot.UP, TextureSlot.DOWN);
+			TextureMapping fullBlockTextures = new TextureMapping()
+					.put(TextureSlot.PARTICLE, mat)
+					.put(TextureSlot.TEXTURE, mat);
+
 
 			MultiVariant top = BlockModelGenerators.plainVariant(dirSlabTop.createWithSuffix(block, "_top", fullBlockTextures, generators.modelOutput));
 			MultiVariant bottom = BlockModelGenerators.plainVariant(dirSlabBottom.createWithSuffix(block, "_bottom", fullBlockTextures, generators.modelOutput));
-			MultiVariant full = BlockModelGenerators.plainVariant(ModelTemplates.CUBE.create(block, fullBlockTextures, generators.modelOutput));
+			MultiVariant full = BlockModelGenerators.plainVariant(dirSlabFull.createWithSuffix(block, "_full", fullBlockTextures, generators.modelOutput));
 
 			var horizModel = MultiVariantGenerator.dispatch(block)
 					.with(PropertyDispatch.initial(GrimoireBlock.TYPE).select(SlabType.BOTTOM, bottom).select(SlabType.TOP, top).select(SlabType.DOUBLE, full))
@@ -84,25 +93,33 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 
 			generators.blockStateOutput.accept(horizModel);
 
+
 			MultiVariant vtop = BlockModelGenerators.plainVariant(dirSlabTop.createWithSuffix(vertical, "_top", fullBlockTextures, generators.modelOutput));
 			MultiVariant vbottom = BlockModelGenerators.plainVariant(dirSlabBottom.createWithSuffix(vertical, "_bottom", fullBlockTextures, generators.modelOutput));
-			MultiVariant vfull = BlockModelGenerators.plainVariant(ModelTemplates.CUBE.create(vertical, fullBlockTextures, generators.modelOutput));
+			MultiVariant vfull = BlockModelGenerators.plainVariant(dirSlabFull.createWithSuffix(vertical, "_full", fullBlockTextures, generators.modelOutput));
 
 			var vertModel = MultiVariantGenerator.dispatch(vertical)
 					.with(PropertyDispatch.initial(GrimoireBlock.TYPE).select(SlabType.BOTTOM, vbottom).select(SlabType.TOP, vtop).select(SlabType.DOUBLE, vfull))
 					.with(
 							PropertyDispatch.modify(GrimoireBlock.FACING)
-									.select(Direction.EAST, BlockModelGenerators.X_ROT_90.then(BlockModelGenerators.Y_ROT_90))
-									.select(Direction.WEST, BlockModelGenerators.X_ROT_90.then(BlockModelGenerators.Y_ROT_270))
-									.select(Direction.SOUTH, BlockModelGenerators.X_ROT_90.then(BlockModelGenerators.Y_ROT_180))
-									.select(Direction.NORTH, BlockModelGenerators.X_ROT_90.then(BlockModelGenerators.NOP))
+									.select(Direction.EAST, BlockModelGenerators.X_ROT_270.then(BlockModelGenerators.NOP))
+									.select(Direction.SOUTH, BlockModelGenerators.X_ROT_90.then(BlockModelGenerators.Y_ROT_90))
+									.select(Direction.WEST, BlockModelGenerators.X_ROT_90.then(BlockModelGenerators.Y_ROT_180))
+									.select(Direction.NORTH, BlockModelGenerators.X_ROT_270.then(BlockModelGenerators.Y_ROT_270))
 					);
 
 			generators.blockStateOutput.accept(vertModel);
+			generators.registerSimpleItemModel(block, BuiltInRegistries.BLOCK.getKey(block));
+			generators.registerSimpleItemModel(vertical, BuiltInRegistries.BLOCK.getKey(vertical));
+
 		}
 
 		private static ModelTemplate createModelTemplate(final String id, final String suffix, final TextureSlot... slots) {
 			return new ModelTemplate(Optional.of(Mugann.id(id)), Optional.empty(), slots);
+		}
+
+		private void ladder(Block block, BlockModelGenerators gen) {
+			gen.createNonTemplateModelBlock(block, Blocks.LADDER);
 		}
 
 		@Override

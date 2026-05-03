@@ -1,0 +1,7 @@
+{
+  "parent": "mugann:block/directional_slab_full",
+  "textures": {
+    "particle": "mugann:block/grimoire_tattered",
+    "texture": "mugann:block/grimoire_tattered"
+  }
+}
