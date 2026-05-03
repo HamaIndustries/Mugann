@@ -19,6 +19,8 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.PushReaction;
 import symbolics.division.mugann.block.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 public class MugannBlocks {
@@ -43,18 +45,19 @@ public class MugannBlocks {
 			true
 	);
 
-	public static final Block GRIMOIRE = register(
-			"grimoire",
-			GrimoireBlock::new,
-			BlockBehaviour.Properties.of(),
-			true
-	);
-	public static final Block GRIMOIRE_VERTICAL = register(
-			"grimoire_vertical",
-			VerticalGrimoireBlock::new,
-			BlockBehaviour.Properties.of(),
-			true
-	);
+	public static final String[] grimTypes = {
+			"album", "botany", "eye", "key", "library", "tattered", "tome", "written"
+	};
+
+	public static final Map<String, Block> GRIMS = new HashMap<>();
+	public static final Map<String, Block> VGRIMS = new HashMap<>();
+
+	static {
+		for (String id : grimTypes) {
+			GRIMS.put(id, grimoire(id));
+			VGRIMS.put(id, grimoireVert(id));
+		}
+	}
 
 	public static final FlowingFluid SOURCE_MOKSHA = Registry.register(
 			BuiltInRegistries.FLUID, Mugann.id("moksha_residue"), new MokshaResidue.Source()
@@ -107,5 +110,23 @@ public class MugannBlocks {
 
 	private static ResourceKey<Item> itemKey(String name) {
 		return ResourceKey.create(Registries.ITEM, Mugann.id(name));
+	}
+
+	private static Block grimoire(String id) {
+		return register(
+				"grimoire_" + id,
+				GrimoireBlock::new,
+				BlockBehaviour.Properties.of(),
+				true
+		);
+	}
+
+	private static Block grimoireVert(String id) {
+		return register(
+				"grimoire_" + id + "_vertical",
+				VerticalGrimoireBlock::new,
+				BlockBehaviour.Properties.of(),
+				true
+		);
 	}
 }

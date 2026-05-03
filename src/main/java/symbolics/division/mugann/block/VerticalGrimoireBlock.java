@@ -17,10 +17,10 @@ import org.jspecify.annotations.Nullable;
 
 public class VerticalGrimoireBlock extends GrimoireBlock {
 
-	protected static final VoxelShape NORTH = Block.box(0, 0, 0, 16, 16, 8);
-	protected static final VoxelShape SOUTH = Block.box(0, 0, 8, 16, 16, 16);
-	protected static final VoxelShape EAST = Block.box(8, 0, 0, 16, 16, 16);
-	protected static final VoxelShape WEST = Block.box(0, 0, 0, 8, 16, 16);
+	protected static final VoxelShape WEST = Block.box(0, 0, 0, 16, 16, 8);
+	protected static final VoxelShape EAST = Block.box(0, 0, 8, 16, 16, 16);
+	protected static final VoxelShape NORTH = Block.box(8, 0, 0, 16, 16, 16);
+	protected static final VoxelShape SOUTH = Block.box(0, 0, 0, 8, 16, 16);
 
 	public VerticalGrimoireBlock(Properties properties) {
 		super(properties);
@@ -37,16 +37,16 @@ public class VerticalGrimoireBlock extends GrimoireBlock {
 
 		BlockState state = super.getStateForPlacement(ctx);
 		Vec3 center = ctx.getClickedPos().getCenter();
-		state = state.setValue(FACING, ctx.getHorizontalDirection().getClockWise());
+		Direction facing = ctx.getHorizontalDirection();
+		state = state.setValue(FACING, facing);
 
-		if (state.getValue(FACING).getAxis() == Direction.Axis.X) {
-			return ctx.getClickLocation().x > center.x
-					? state.setValue(TYPE, SlabType.TOP)
-					: state.setValue(TYPE, SlabType.BOTTOM);
+		boolean biasWest = ctx.getClickLocation().x < center.x;
+		boolean biasNorth = ctx.getClickLocation().z < center.z;
+
+		if (facing.getAxis() == Direction.Axis.X) {
+			return state.setValue(TYPE, biasNorth ? SlabType.BOTTOM : SlabType.TOP);
 		} else {
-			return ctx.getClickLocation().z < center.z
-					? state.setValue(TYPE, SlabType.TOP)
-					: state.setValue(TYPE, SlabType.BOTTOM);
+			return state.setValue(TYPE, biasWest ? SlabType.BOTTOM : SlabType.TOP);
 		}
 	}
 
@@ -63,16 +63,13 @@ public class VerticalGrimoireBlock extends GrimoireBlock {
 
 	@Override
 	protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-		return switch (state.getValue(TYPE)) {
-			case DOUBLE -> Shapes.block();
-			case TOP -> switch (state.getValue(FACING)) {
-				case Direction.EAST -> EAST;
-				default -> NORTH;
-			};
-			case BOTTOM -> switch (state.getValue(FACING)) {
-				case Direction.EAST -> WEST;
-				default -> SOUTH;
-			};
-		};
+		SlabType type = state.getValue(TYPE);
+		if (type == SlabType.DOUBLE) {
+			return Shapes.block();
+		}
+
+		boolean axisX = state.getValue(FACING).getAxis() == Direction.Axis.X;
+		boolean top = type == SlabType.TOP;
+		return axisX ? top ? EAST : WEST : top ? NORTH : SOUTH;
 	}
 }
