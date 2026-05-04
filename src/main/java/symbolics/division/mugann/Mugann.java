@@ -186,7 +186,7 @@ public class Mugann implements ModInitializer {
 	);
 
 	public static final AttachmentType<Unit> NOTHING_BORNE = AttachmentRegistry.create(
-			id("nothing"), builder -> builder.persistent(Unit.CODEC)
+			id("nothing"), builder -> builder.persistent(Unit.CODEC).copyOnDeath()
 	);
 
 	private static String REMEMBER_WHAT_WE_TOLD_EACH_OTHER = "Ds�\u0015��2�P?c���'�\u0017�Z&_&UqRS\"�#��Z";
