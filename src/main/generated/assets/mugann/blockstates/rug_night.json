@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "mugann:block/rug_night",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "mugann:block/rug_night",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "mugann:block/rug_night"
+    },
+    "facing=west": {
+      "model": "mugann:block/rug_night",
+      "y": 90
+    }
+  }
+}

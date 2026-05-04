@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "mugann:grimoire_botany"
+    "model": "mugann:block/grimoire_botany"
   }
 }

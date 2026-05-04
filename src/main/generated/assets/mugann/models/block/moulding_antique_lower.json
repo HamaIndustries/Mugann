@@ -1,0 +1,6 @@
+{
+  "parent": "mugann:block/moulding_template_lower",
+  "textures": {
+    "texture": "mugann:block/moulding_antique"
+  }
+}

@@ -9,9 +9,7 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
-import net.minecraft.client.data.models.model.ModelTemplate;
-import net.minecraft.client.data.models.model.TextureMapping;
-import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
@@ -19,10 +17,12 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import symbolics.division.mugann.Mugann;
 import symbolics.division.mugann.MugannBlocks;
 import symbolics.division.mugann.block.GrimoireBlock;
+import symbolics.division.mugann.block.MouldingBlock;
 
 import java.util.Optional;
 
@@ -38,6 +38,8 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 		ModelTemplate dirSlabTop = createModelTemplate("block/directional_slab_top", "_top", TextureSlot.PARTICLE, TextureSlot.TEXTURE);
 		ModelTemplate dirSlabBottom = createModelTemplate("block/directional_slab_bottom", "_bottom", TextureSlot.PARTICLE, TextureSlot.TEXTURE);
 		ModelTemplate dirSlabFull = createModelTemplate("block/directional_slab_full", "_full", TextureSlot.PARTICLE, TextureSlot.TEXTURE);
+		ModelTemplate mouldingTemplateLower = createModelTemplate("block/moulding_template_lower", "", TextureSlot.TEXTURE);
+		ModelTemplate mouldingTemplateUpper = createModelTemplate("block/moulding_template_upper", "", TextureSlot.TEXTURE);
 
 		public ModelProvider(FabricPackOutput output) {
 			super(output);
@@ -58,10 +60,28 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 			for (String id : MugannBlocks.grimTypes) {
 				grimoire(MugannBlocks.GRIMS.get(id), MugannBlocks.VGRIMS.get(id), blockModelGenerators);
 			}
+			
+			MugannBlocks.MOULDINGS.blocks.values().forEach(b -> moulding(b, blockModelGenerators));
+			MugannBlocks.WALLPAPERS.blocks.values().forEach(blockModelGenerators::createTrivialCube);
+			MugannBlocks.CARPETS.blocks.values().forEach(blockModelGenerators::createTrivialCube);
+			blockModelGenerators.createColoredBlockWithStateRotations(TexturedModel.GLAZED_TERRACOTTA, MugannBlocks.RUGS.blocks.values().toArray(Block[]::new));
+		}
 
-			for (String id : MugannBlocks.ladderTypes) {
-				ladder(MugannBlocks.LADDERS.get(id), blockModelGenerators);
-			}
+		private void moulding(Block block, BlockModelGenerators blockModelGenerators) {
+			TextureMapping mapping = TextureMapping.defaultTexture(block);
+			MultiVariant modelLower = BlockModelGenerators.plainVariant(mouldingTemplateLower.createWithSuffix(block, "_lower", mapping, blockModelGenerators.modelOutput));
+			MultiVariant modelUpper = BlockModelGenerators.plainVariant(mouldingTemplateUpper.createWithSuffix(block, "_upper", mapping, blockModelGenerators.modelOutput));
+			blockModelGenerators.blockStateOutput.accept(
+					MultiVariantGenerator.dispatch(block)
+							.with(PropertyDispatch.initial(MouldingBlock.HALF).select(Half.BOTTOM, modelLower).select(Half.TOP, modelUpper))
+							.with(PropertyDispatch.modify(MouldingBlock.FACING)
+									.select(Direction.NORTH, BlockModelGenerators.NOP)
+									.select(Direction.EAST, BlockModelGenerators.Y_ROT_90)
+									.select(Direction.SOUTH, BlockModelGenerators.Y_ROT_180)
+									.select(Direction.WEST, BlockModelGenerators.Y_ROT_270)
+							)
+			);
+			blockModelGenerators.registerSimpleItemModel(block, BuiltInRegistries.BLOCK.getKey(block));
 		}
 
 
@@ -109,9 +129,11 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 					);
 
 			generators.blockStateOutput.accept(vertModel);
-			generators.registerSimpleItemModel(block, BuiltInRegistries.BLOCK.getKey(block));
-			generators.registerSimpleItemModel(vertical, BuiltInRegistries.BLOCK.getKey(vertical));
 
+			generators.registerSimpleItemModel(block, ModelLocationUtils.getModelLocation(block));
+			generators.registerSimpleItemModel(vertical, ModelLocationUtils.getModelLocation(vertical));
+//			generators.registerSimpleFlatItemModel(block);
+//			generators.registerSimpleFlatItemModel(vertical);
 		}
 
 		private static ModelTemplate createModelTemplate(final String id, final String suffix, final TextureSlot... slots) {

@@ -1,0 +1,6 @@
+{
+  "parent": "mugann:block/moulding_template_upper",
+  "textures": {
+    "texture": "mugann:block/moulding_classical"
+  }
+}

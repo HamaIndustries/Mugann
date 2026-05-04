@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "mugann:block/ladder_askew",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "mugann:block/ladder_askew"
+    },
+    "facing=south": {
+      "model": "mugann:block/ladder_askew",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mugann:block/ladder_askew",
+      "y": 270
+    }
+  }
+}

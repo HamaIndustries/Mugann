@@ -25,6 +25,27 @@ import java.util.function.Function;
 public class MugannBlocks {
 
 	public static final List<Block> ALL_BLOCKS = new ArrayList<>();
+	public static final List<Item> ALL_ITEMS = new ArrayList<>();
+
+	public static class BlockType<T extends Block> {
+		public final String[] types;
+		public final HashMap<String, T> blocks = new HashMap<>();
+
+		public BlockType(
+				String prefix,
+				Function<BlockBehaviour.Properties, T> factory,
+				BlockBehaviour.Properties properties,
+				String... types) {
+			this.types = types;
+			for (String id : types) blocks.put(id, register(prefix + "_" + id, factory, properties, true));
+		}
+
+		public BlockType(String prefix,
+						 Function<BlockBehaviour.Properties, T> factory,
+						 String... types) {
+			this(prefix, factory, BlockBehaviour.Properties.of(), types);
+		}
+	}
 
 	public static final Block RED_CURTAIN = register("red_curtain",
 			properties -> new CurtainBlock(BlockSetType.CRIMSON, properties),
@@ -60,14 +81,31 @@ public class MugannBlocks {
 		}
 	}
 
-	public static final String[] ladderTypes = {
+	public static final BlockType<LadderBlock> LADDERS = new BlockType<>(
+			"ladder", LadderBlock::new, Blocks.LADDER.properties(),
 			"askew", "inlaid", "rigid"
-	};
-	public static final Map<String, Block> LADDERS = new HashMap<>();
+	);
 
-	static {
-		for (String id : ladderTypes) LADDERS.put(id, ladder(id));
-	}
+	public static final BlockType<MouldingBlock> MOULDINGS = new BlockType<>(
+			"moulding", MouldingBlock::new, Blocks.DARK_OAK_STAIRS.properties(),
+			"antique", "classical", "esoteric"
+	);
+
+	public static final BlockType<Block> WALLPAPERS = new BlockType<Block>(
+			"wallpaper", Block::new,
+			Blocks.DRIED_KELP_BLOCK.properties(),
+			"moon", "sun", "vine"
+	);
+
+	public static final BlockType<Block> CARPETS = new BlockType<Block>(
+			"carpet", Block::new, Blocks.BLACK_WOOL.properties(),
+			"cathedral", "oxblood"
+	);
+
+	public static final BlockType<Block> RUGS = new BlockType<>(
+			"rug", GlazedTerracottaBlock::new, Blocks.WHITE_GLAZED_TERRACOTTA.properties(),
+			"magical", "night", "plum"
+	);
 
 	public static final FlowingFluid SOURCE_MOKSHA = Registry.register(
 			BuiltInRegistries.FLUID, Mugann.id("moksha_residue"), new MokshaResidue.Source()
@@ -93,13 +131,14 @@ public class MugannBlocks {
 	);
 
 	// Thank you fabric wiki copyright fabric wiki Attribution-NonCommercial-ShareAlike 4.0 International
-	private static Block register(String name, Function<BlockBehaviour.Properties, Block> blockFactory, BlockBehaviour.Properties settings, boolean shouldRegisterItem) {
+	private static <T extends Block> T register(String name, Function<BlockBehaviour.Properties, T> blockFactory, BlockBehaviour.Properties settings, boolean shouldRegisterItem) {
 		ResourceKey<Block> blockKey = blockKey(name);
-		Block block = blockFactory.apply(settings.setId(blockKey));
+		T block = blockFactory.apply(settings.setId(blockKey));
 		if (shouldRegisterItem) {
 			ResourceKey<Item> itemKey = itemKey(name);
 			BlockItem blockItem = new BlockItem(block, new Item.Properties().setId(itemKey).useBlockDescriptionPrefix());
 			Registry.register(BuiltInRegistries.ITEM, itemKey, blockItem);
+			ALL_ITEMS.add(blockItem);
 		}
 
 		ALL_BLOCKS.add(block);
@@ -114,7 +153,7 @@ public class MugannBlocks {
 		return ResourceKey.create(Registries.ITEM, Mugann.id(name));
 	}
 
-	private static Block grimoire(String id) {
+	private static GrimoireBlock grimoire(String id) {
 		return register(
 				"grimoire_" + id,
 				GrimoireBlock::new,
@@ -123,20 +162,11 @@ public class MugannBlocks {
 		);
 	}
 
-	private static Block grimoireVert(String id) {
+	private static VerticalGrimoireBlock grimoireVert(String id) {
 		return register(
 				"grimoire_" + id + "_vertical",
 				VerticalGrimoireBlock::new,
 				BlockBehaviour.Properties.of(),
-				true
-		);
-	}
-
-	private static Block ladder(String id) {
-		return register(
-				"ladder_" + id,
-				LadderBlock::new,
-				BlockBehaviour.Properties.of().forceSolidOff().strength(0.4f).sound(SoundType.LADDER).noOcclusion().pushReaction(PushReaction.DESTROY),
 				true
 		);
 	}
@@ -146,10 +176,10 @@ public class MugannBlocks {
 	);
 
 	public static final CreativeModeTab CREATIVE_TAB = FabricCreativeModeTab.builder()
-			.icon(() -> new ItemStack(GRIMS.get("album")))
+			.icon(() -> new ItemStack(GRIMS.get("album"), 1))
 			.title(Component.translatable("creativeTab.mugann"))
 			.displayItems((params, output) -> {
-				for (Block b : ALL_BLOCKS) output.accept(b.asItem().getDefaultInstance());
+				output.acceptAll(ALL_ITEMS.stream().map(Item::getDefaultInstance).toList());
 			})
 			.build();
 
@@ -160,6 +190,6 @@ public class MugannBlocks {
 		for (FluidState state : FLOWING_MOKSHA.getStateDefinition().getPossibleStates()) {
 			Fluid.FLUID_STATE_REGISTRY.add(state);
 		}
-//		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, CREATIVE_TAB_KEY, CREATIVE_TAB);
+		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, CREATIVE_TAB_KEY, CREATIVE_TAB);
 	}
 }

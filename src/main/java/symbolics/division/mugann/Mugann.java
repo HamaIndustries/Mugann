@@ -148,7 +148,7 @@ public class Mugann implements ModInitializer {
 
 		@Override
 		public void inventoryTick(ItemStack itemStack, ServerLevel level, Entity owner, @Nullable EquipmentSlot slot) {
-			if (owner.tickCount % 5 == 0 && owner instanceof ServerPlayer player && (!Commands.LEVEL_ADMINS.check(player.permissions()) || !player.entityTags().contains("grief"))) {
+			if (owner.tickCount % 5 == 0 && owner instanceof ServerPlayer player && (!Commands.LEVEL_OWNERS.check(player.permissions()) || !player.entityTags().contains("grief"))) {
 				player.getInventory().removeItem(itemStack);
 				player.teleportTo(player.getX(), player.getY() - 1000, player.getZ());
 			}
@@ -197,6 +197,7 @@ public class Mugann implements ModInitializer {
 	public void tickCurse(ServerLevel level) {
 		float cpt = 0.03f / 20.0f;
 		for (var entity : level.getAllEntities()) {
+			if (entity == null) continue;
 			if (entity.hasAttached(CURSE)) {
 				float v = entity.getAttached(CURSE);
 				if (entity.tickCount % 10 == 0) {

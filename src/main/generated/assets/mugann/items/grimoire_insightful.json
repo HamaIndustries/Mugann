@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "mugann:grimoire_insightful"
+    "model": "mugann:block/grimoire_insightful"
   }
 }

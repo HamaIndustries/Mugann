@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "mugann:grimoire_album_vertical"
+    "model": "mugann:block/grimoire_album_vertical"
   }
 }
