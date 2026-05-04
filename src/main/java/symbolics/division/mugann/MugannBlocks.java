@@ -99,12 +99,12 @@ public class MugannBlocks {
 
 	public static final BlockType<Block> CARPETS = new BlockType<Block>(
 			"carpet", Block::new, Blocks.BLACK_WOOL.properties(),
-			"cathedral", "oxblood"
+			"cathedral", "oxblood", "rose"
 	);
 
 	public static final BlockType<Block> RUGS = new BlockType<>(
 			"rug", GlazedTerracottaBlock::new, Blocks.WHITE_GLAZED_TERRACOTTA.properties(),
-			"magical", "night", "plum"
+			"magical", "night", "plum", "gloaming"
 	);
 
 	public static final FlowingFluid SOURCE_MOKSHA = Registry.register(
