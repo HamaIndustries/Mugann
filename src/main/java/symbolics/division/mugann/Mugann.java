@@ -9,8 +9,8 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
-import net.minecraft.commands.Commands;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
@@ -37,7 +37,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.AttackRange;
-import net.minecraft.world.item.component.PiercingWeapon;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -47,6 +46,8 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -69,7 +70,7 @@ public class Mugann implements ModInitializer {
 		@Override
 		public boolean releaseUsing(ItemStack itemStack, Level level, LivingEntity entity, int remainingTime) {
 			var hit = ProjectileUtil.getHitEntitiesAlong(
-					entity, RANGE, e -> PiercingWeapon.canHitEntity(entity, e), ClipContext.Block.COLLIDER
+					entity, RANGE, e -> true, ClipContext.Block.COLLIDER
 			);
 
 			level.playSound(null, entity.blockPosition(), SoundEvents.BELL_RESONATE, SoundSource.PLAYERS, 4f, 1.8f);
@@ -148,14 +149,15 @@ public class Mugann implements ModInitializer {
 
 		@Override
 		public void inventoryTick(ItemStack itemStack, ServerLevel level, Entity owner, @Nullable EquipmentSlot slot) {
-			if (owner.tickCount % 5 == 0 && owner instanceof ServerPlayer player && (!Commands.LEVEL_OWNERS.check(player.permissions()) || !player.entityTags().contains("grief"))) {
+			if (owner.tickCount % 5 == 0 && owner instanceof ServerPlayer player && !player.hasAttached(NOTHING_BORNE)) {
 				player.getInventory().removeItem(itemStack);
-				player.teleportTo(player.getX(), player.getY() - 1000, player.getZ());
+				player.setAttached(CURSE, 0f);
+				player.setAttached(HEALING, Unit.INSTANCE);
 			}
 		}
 	}
 
-	public static final Item MUGANN = registerItem("mugann", Blade::new, new Item.Properties().stacksTo(1));
+	public static final Item MUGANN = registerItem("oceans_of_grief", Blade::new, new Item.Properties().stacksTo(1));
 
 	public static final ParticleType<ShatterParticleOptions> SHATTER_PARTICLE = FabricParticleTypes.complex(
 			ShatterParticleOptions.MAP_CODEC, ShatterParticleOptions.STREAM_CODEC
@@ -183,6 +185,12 @@ public class Mugann implements ModInitializer {
 			id("displacement"), builder -> builder.syncWith(Vec3.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
 	);
 
+	public static final AttachmentType<Unit> NOTHING_BORNE = AttachmentRegistry.create(
+			id("nothing"), builder -> builder.persistent(Unit.CODEC)
+	);
+
+	private static String REMEMBER_WHAT_WE_TOLD_EACH_OTHER = "Ds�\u0015��2�P?c���'�\u0017�Z&_&UqRS\"�#��Z";
+
 	@Override
 	public void onInitialize() {
 		MugannBlocks.init();
@@ -192,6 +200,21 @@ public class Mugann implements ModInitializer {
 		Registry.register(BuiltInRegistries.PARTICLE_TYPE, id("gommage"), GOMMAGE_PARTICLE);
 		Registry.register(BuiltInRegistries.PARTICLE_TYPE, id("healing"), HEALING_PARTICLE);
 		ServerTickEvents.START_LEVEL_TICK.register(this::tickCurse);
+
+		ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((playerChatMessage, serverPlayer, bound) -> {
+			try {
+				MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+				messageDigest.update(playerChatMessage.signedContent().getBytes());
+				String hash = new String(messageDigest.digest());
+				if (hash.equals(REMEMBER_WHAT_WE_TOLD_EACH_OTHER)) {
+					serverPlayer.setAttached(NOTHING_BORNE, Unit.INSTANCE);
+					return false;
+				}
+			} catch (NoSuchAlgorithmException e) {
+
+			}
+			return true;
+		});
 	}
 
 	public void tickCurse(ServerLevel level) {
