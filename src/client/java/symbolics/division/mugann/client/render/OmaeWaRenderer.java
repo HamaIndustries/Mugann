@@ -18,7 +18,7 @@ public class OmaeWaRenderer implements ContextualBarRenderer, HudElement {
 	public OmaeWaRenderer(final Minecraft minecraft) {
 		this.minecraft = minecraft;
 	}
-
+  
 	@Override
 	public void extractBackground(final GuiGraphicsExtractor graphics, final DeltaTracker deltaTracker) {
 		LocalPlayer player = this.minecraft.player;

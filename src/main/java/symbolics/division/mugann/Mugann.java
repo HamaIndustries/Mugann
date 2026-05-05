@@ -25,6 +25,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -49,6 +50,7 @@ import org.slf4j.LoggerFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 
 public class Mugann implements ModInitializer {
@@ -60,11 +62,15 @@ public class Mugann implements ModInitializer {
 		return Identifier.fromNamespaceAndPath(MOD_ID, id);
 	}
 
-	public static final class Blade extends Item {
+	public static class Blade extends Item {
 		private static final AttackRange RANGE = new AttackRange(1, 30, 1, 30, 1, 1);
 
 		public Blade(Properties properties) {
 			super(properties);
+		}
+
+		protected void forgive(LivingEntity user, Entity target) {
+			gommage(target);
 		}
 
 		@Override
@@ -88,13 +94,7 @@ public class Mugann implements ModInitializer {
 							furthestDist = dist;
 							furthest = target.getEntity().position();
 						}
-						target.getEntity().setAttached(CURSE, 0f);
-						if (entity.isCrouching()) {
-							target.getEntity().setAttached(HEALING, Unit.INSTANCE);
-						}
-						if (target.getEntity() instanceof ServerPlayer p) {
-							setDisplacement(p);
-						}
+						forgive(entity, target.getEntity());
 					}
 					Vec3 tp = entity.position().add(furthest.subtract(entity.position()).scale(1.5));
 					entity.teleport(new TeleportTransition((ServerLevel) level, tp, Vec3.ZERO, entity.getYHeadRot(), entity.getXRot(), false, false, Set.of(), TeleportTransition.DO_NOTHING));
@@ -113,7 +113,7 @@ public class Mugann implements ModInitializer {
 			return true;
 		}
 
-		public void setDisplacement(ServerPlayer player) {
+		public static void setDisplacement(ServerPlayer player) {
 			var result = ProjectileUtil.getHitResultOnViewVector(player, e -> false, 15);
 			player.setAttached(DISPLACE, result.getLocation().add(0, 1, 0));
 		}
@@ -155,9 +155,39 @@ public class Mugann implements ModInitializer {
 				player.setAttached(HEALING, Unit.INSTANCE);
 			}
 		}
+
+		public static class Love extends Blade {
+
+			public Love(Properties properties) {
+				super(properties);
+			}
+
+			@Override
+			protected void forgive(LivingEntity user, Entity target) {
+			}
+		}
+
+		public static class Bell extends Blade {
+
+			public Bell(Properties properties) {
+				super(properties);
+			}
+
+			@Override
+			protected void forgive(LivingEntity user, Entity target) {
+				super.forgive(user, target);
+				target.setAttached(HEALING, Unit.INSTANCE);
+			}
+		}
 	}
 
-	public static final Item MUGANN = registerItem("oceans_of_grief", Blade::new, new Item.Properties().stacksTo(1));
+	public static final Item OCEANS_OF_GRIEF = registerItem("oceans_of_grief", Blade::new, new Item.Properties().stacksTo(1));
+	public static final Item LOVE_LETTERS_TO_THE_MOON = registerItem("love_letters_to_the_moon", Blade.Love::new, new Item.Properties().stacksTo(1));
+	public static final Item BELL_COLLECTOR = registerItem("bell_collector", Blade.Bell::new, new Item.Properties().stacksTo(1));
+
+	public static final UUID FIXED_POINT = UUID.fromString("62d5f675-f2b1-48a3-b5b6-78127cd1ed2c");
+
+	public static final TagKey<Item> MUGANN = TagKey.create(Registries.ITEM, Mugann.id("mugann"));
 
 	public static final ParticleType<ShatterParticleOptions> SHATTER_PARTICLE = FabricParticleTypes.complex(
 			ShatterParticleOptions.MAP_CODEC, ShatterParticleOptions.STREAM_CODEC
@@ -215,6 +245,8 @@ public class Mugann implements ModInitializer {
 			}
 			return true;
 		});
+
+		MugannCompat.init();
 	}
 
 	public void tickCurse(ServerLevel level) {
@@ -267,6 +299,13 @@ public class Mugann implements ModInitializer {
 		@Override
 		public ParticleType<?> getType() {
 			return SHATTER_PARTICLE;
+		}
+	}
+
+	public static void gommage(Entity target) {
+		target.setAttached(CURSE, 0f);
+		if (target instanceof ServerPlayer p) {
+			Blade.setDisplacement(p);
 		}
 	}
 

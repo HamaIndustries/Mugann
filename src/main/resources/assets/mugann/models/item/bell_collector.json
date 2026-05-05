@@ -1,0 +1,61 @@
+{
+  "format_version": "1.21.6",
+  "credit": "Made with Blockbench",
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "mugann:item/mugann_black"
+  },
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        -172,
+        -85,
+        64
+      ],
+      "translation": [
+        0.25,
+        -17,
+        3.25
+      ],
+      "scale": [
+        2,
+        2,
+        1
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        180,
+        91,
+        -48
+      ],
+      "translation": [
+        0.25,
+        -20,
+        2
+      ],
+      "scale": [
+        2,
+        2,
+        1
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        23,
+        93,
+        35
+      ],
+      "translation": [
+        6.5,
+        4,
+        -1.75
+      ],
+      "scale": [
+        2,
+        2,
+        1
+      ]
+    }
+  }
+}

@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
@@ -13,6 +14,7 @@ import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -25,12 +27,14 @@ import symbolics.division.mugann.block.GrimoireBlock;
 import symbolics.division.mugann.block.MouldingBlock;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class MugannDataGenerator implements DataGeneratorEntrypoint {
 	@Override
 	public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
 		var pack = fabricDataGenerator.createPack();
 		pack.addProvider(ModelProvider::new);
+		pack.addProvider(MugannItemTags::new);
 	}
 
 	public static final class ModelProvider extends FabricModelProvider {
@@ -148,6 +152,18 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 			for (var ladder : MugannBlocks.LADDERS.blocks.values()) {
 				itemModelGenerators.generateFlatItem(ladder.asItem(), ModelTemplates.FLAT_ITEM);
 			}
+		}
+	}
+
+	public static class MugannItemTags extends FabricTagsProvider.ItemTagsProvider {
+
+		public MugannItemTags(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registryLookupFuture) {
+			super(output, registryLookupFuture);
+		}
+
+		@Override
+		protected void addTags(HolderLookup.Provider registries) {
+			valueLookupBuilder(Mugann.MUGANN).add(Mugann.OCEANS_OF_GRIEF, Mugann.LOVE_LETTERS_TO_THE_MOON, Mugann.BELL_COLLECTOR);
 		}
 	}
 }
