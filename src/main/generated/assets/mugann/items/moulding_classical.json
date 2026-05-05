@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "mugann:moulding_classical"
+    "model": "mugann:block/moulding_classical_lower"
   }
 }

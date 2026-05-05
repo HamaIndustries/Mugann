@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "mugann:block/grimoire_botany_bottom"
+    "model": "mugann:item/ladder_inlaid"
   }
 }

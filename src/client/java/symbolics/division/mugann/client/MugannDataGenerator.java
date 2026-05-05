@@ -60,7 +60,9 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 			for (String id : MugannBlocks.grimTypes) {
 				grimoire(MugannBlocks.GRIMS.get(id), MugannBlocks.VGRIMS.get(id), blockModelGenerators);
 			}
-			
+
+//			MugannBlocks.LADDERS.blocks.values().forEach(l -> blockModelGenerators.registerSimpleItemModel());
+
 			MugannBlocks.MOULDINGS.blocks.values().forEach(b -> moulding(b, blockModelGenerators));
 			MugannBlocks.WALLPAPERS.blocks.values().forEach(blockModelGenerators::createTrivialCube);
 			MugannBlocks.CARPETS.blocks.values().forEach(blockModelGenerators::createTrivialCube);
@@ -81,7 +83,7 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 									.select(Direction.WEST, BlockModelGenerators.Y_ROT_270)
 							)
 			);
-			blockModelGenerators.registerSimpleItemModel(block, BuiltInRegistries.BLOCK.getKey(block));
+			blockModelGenerators.registerSimpleItemModel(block, ModelLocationUtils.getModelLocation(block, "_lower"));
 		}
 
 
@@ -129,11 +131,8 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 					);
 
 			generators.blockStateOutput.accept(vertModel);
-
-			generators.registerSimpleItemModel(block, ModelLocationUtils.getModelLocation(block));
-			generators.registerSimpleItemModel(vertical, ModelLocationUtils.getModelLocation(vertical));
-//			generators.registerSimpleFlatItemModel(block);
-//			generators.registerSimpleFlatItemModel(vertical);
+			generators.registerSimpleItemModel(block, ModelLocationUtils.getModelLocation(block, "_bottom"));
+			generators.registerSimpleItemModel(vertical, ModelLocationUtils.getModelLocation(block, "_bottom"));
 		}
 
 		private static ModelTemplate createModelTemplate(final String id, final String suffix, final TextureSlot... slots) {
@@ -146,7 +145,9 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 
 		@Override
 		public void generateItemModels(ItemModelGenerators itemModelGenerators) {
-
+			for (var ladder : MugannBlocks.LADDERS.blocks.values()) {
+				itemModelGenerators.generateFlatItem(ladder.asItem(), ModelTemplates.FLAT_ITEM);
+			}
 		}
 	}
 }

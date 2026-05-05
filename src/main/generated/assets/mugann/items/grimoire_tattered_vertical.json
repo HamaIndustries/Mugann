@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "mugann:block/grimoire_tattered_vertical"
+    "model": "mugann:block/grimoire_tattered_bottom"
   }
 }
