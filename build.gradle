@@ -27,6 +27,9 @@ repositories {
             includeGroup "maven.modrinth"
         }
     }
+
+    //mixin squared
+    maven { url = "https://maven.bawnorton.com/releases" }
 }
 
 loom {
@@ -58,6 +61,10 @@ dependencies {
 
     compileOnly "maven.modrinth:yacl:3.9.2+26.1-fabric"
     compileOnly "maven.modrinth:petsful:1.1.0"
+
+    include(implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-fabric:0.3.7-beta.2")))
+
+    compileOnly "maven.modrinth:lovely-bites:0.3.0-26.1.1"
 }
 
 processResources {
