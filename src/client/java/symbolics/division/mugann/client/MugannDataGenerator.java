@@ -12,10 +12,12 @@ import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
+import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -44,6 +46,8 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 		ModelTemplate dirSlabFull = createModelTemplate("block/directional_slab_full", "_full", TextureSlot.PARTICLE, TextureSlot.TEXTURE);
 		ModelTemplate mouldingTemplateLower = createModelTemplate("block/moulding_template_lower", "", TextureSlot.TEXTURE);
 		ModelTemplate mouldingTemplateUpper = createModelTemplate("block/moulding_template_upper", "", TextureSlot.TEXTURE);
+
+		ModelTemplate grimoireAltTemplate = createModelTemplate("item/grimoire_alt", "", TextureSlot.LAYER0);
 
 		public ModelProvider(FabricPackOutput output) {
 			super(output);
@@ -135,7 +139,7 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 					);
 
 			generators.blockStateOutput.accept(vertModel);
-			generators.registerSimpleItemModel(block, ModelLocationUtils.getModelLocation(block, "_bottom"));
+//			generators.registerSimpleItemModel(block, ModelLocationUtils.getModelLocation(block, "_bottom"));
 			generators.registerSimpleItemModel(vertical, ModelLocationUtils.getModelLocation(block, "_bottom"));
 		}
 
@@ -151,6 +155,16 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 		public void generateItemModels(ItemModelGenerators itemModelGenerators) {
 			for (var ladder : MugannBlocks.LADDERS.blocks.values()) {
 				itemModelGenerators.generateFlatItem(ladder.asItem(), ModelTemplates.FLAT_ITEM);
+			}
+
+			for (Block grim : MugannBlocks.GRIMS.values()) {
+				Item item = grim.asItem();
+				Material material = new Material(BuiltInRegistries.BLOCK.getKey(grim).withPrefix("block/"));
+				ItemModel.Unbaked blockModel = ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(grim, "_bottom"));
+				ItemModel.Unbaked openModel = ItemModelUtils.plainModel(grimoireAltTemplate.create(item, TextureMapping.layer0(material), itemModelGenerators.modelOutput));
+				itemModelGenerators.itemModelOutput.accept(item, ItemModelGenerators.createFlatModelDispatch(
+						blockModel, openModel
+				));
 			}
 		}
 	}

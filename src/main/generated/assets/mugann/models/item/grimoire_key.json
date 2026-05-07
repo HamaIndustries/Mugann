@@ -1,0 +1,6 @@
+{
+  "parent": "mugann:item/grimoire_alt",
+  "textures": {
+    "layer0": "mugann:block/grimoire_key"
+  }
+}
