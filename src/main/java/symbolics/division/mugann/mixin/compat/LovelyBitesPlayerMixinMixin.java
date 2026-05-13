@@ -24,7 +24,7 @@ public class LovelyBitesPlayerMixinMixin {
 	)
 	private InteractionHand wrongHand(Operation<InteractionHand> original, @Local(ordinal = 0, argsOnly = true) final Entity entity) {
 		if (entity.getUUID().equals(Mugann.FIXED_POINT)) {
-			Mugann.gommage((Player) (Object) this);
+			Mugann.gommage((Player) (Object) this, false);
 			return InteractionHand.MAIN_HAND;
 		}
 		return original.call();

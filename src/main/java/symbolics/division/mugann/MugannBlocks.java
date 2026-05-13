@@ -130,6 +130,14 @@ public class MugannBlocks {
 			false
 	);
 
+	public static final Block DEEPEST_SECRET = register(
+			"deepest_secret", Block::new,
+			BlockBehaviour.Properties.of()
+					.noOcclusion()
+					.noCollision()
+			, false
+	);
+
 	// Thank you fabric wiki copyright fabric wiki Attribution-NonCommercial-ShareAlike 4.0 International
 	private static <T extends Block> T register(String name, Function<BlockBehaviour.Properties, T> blockFactory, BlockBehaviour.Properties settings, boolean shouldRegisterItem) {
 		ResourceKey<Block> blockKey = blockKey(name);

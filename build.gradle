@@ -30,6 +30,10 @@ repositories {
 
     //mixin squared
     maven { url = "https://maven.bawnorton.com/releases" }
+    maven {
+        name "CaffeineMC"
+        url "https://maven.caffeinemc.net/releases" // or /snapshots
+    }
 }
 
 loom {
@@ -65,6 +69,7 @@ dependencies {
     include(implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-fabric:0.3.7-beta.2")))
 
     compileOnly "maven.modrinth:lovely-bites:0.3.0-26.1.1"
+//    implementation "net.caffeinemc:sodium-fabric-api:0.8.11+mc1.21.11"
 }
 
 processResources {

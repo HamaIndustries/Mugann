@@ -9,9 +9,11 @@
     "CameraMixin",
     "ClientPacketListenerMixin",
     "EntityRendererMixin",
-    "GameRendererMixin"
+    "GameRendererMixin",
+    "LevelRendererMixin",
+    "LocalPlayerMixin"
   ],
   "mixins": [
-    "LocalPlayerMixin"
+    "MouseHandlerMixin"
   ]
 }

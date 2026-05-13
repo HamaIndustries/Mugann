@@ -3,18 +3,25 @@ package symbolics.division.mugann.client.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import symbolics.division.mugann.Mugann;
 import symbolics.division.mugann.MugannTags;
 import symbolics.division.mugann.client.MugannClient;
 
@@ -67,21 +74,61 @@ public class GameRendererMixin {
 		}
 	}
 
-	@WrapOperation(
-			method = "render",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isGameLoadFinished()Z")
+	@Inject(
+			method = "extract",
+			at = @At("HEAD"),
+			cancellable = true
 	)
-	public boolean unfinish(Minecraft instance, Operation<Boolean> original) {
-		var player = instance.player;
+	public void inject(final DeltaTracker deltaTracker, final boolean advanceGameTime, CallbackInfo ci) {
+//		if (mugann$internalized(Minecraft.getInstance().player)) ci.cancel();
+		if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.hasAttached(Mugann.FALSE_CURSE))
+			ci.cancel();
+	}
+
+	@Unique
+	private boolean mugann$internalized(Player player) {
 		if (player != null) {
 			Vec3 p = player.getEyePosition();
 			BlockPos bp = new BlockPos(Mth.floor(p.x), Mth.floor(p.y), Mth.floor(p.z));
 			var state = player.level().getBlockState(bp);
 			if (state.is(MugannTags.Blocks.HYPOTHETICAL)) {
-				return false;
+				return true;
 			}
 		}
-		return original.call(instance);
+		return false;
 	}
+
+	@Shadow
+	@Final
+	private FeatureRenderDispatcher featureRenderDispatcher;
+
+	@Inject(
+			method = "renderLevel",
+			at = @At("HEAD"),
+			cancellable = true
+	)
+	public void derender(final DeltaTracker deltaTracker, CallbackInfo ci) {
+		if (mugann$internalized(Minecraft.getInstance().player)) {
+			this.featureRenderDispatcher.clearSubmitNodes();
+			ci.cancel();
+		}
+	}
+
+//	@Inject(
+//			method = "tick",
+//			at = @At("HEAD"),
+//			cancellable = true
+//	)
+//	public void untick(CallbackInfo ci) {
+//		if (mugann$internalized(Minecraft.getInstance().player)) ci.cancel();
+//	}
+//
+//	@WrapOperation(
+//			method = "render",
+//			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isGameLoadFinished()Z")
+//	)
+//	public boolean unfinish(Minecraft instance, Operation<Boolean> original) {
+//		return !mugann$internalized(instance.player) && original.call(instance);
+//	}
 
 }

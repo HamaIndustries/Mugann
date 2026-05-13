@@ -9,7 +9,7 @@ public class MugannCompat {
 		if (FabricLoader.getInstance().isModLoaded("petsful")) {
 			PlayerPetCallback.EVENT.register((player, entity) -> {
 				if (entity instanceof ServerPlayer && player.getUUID().equals(Mugann.FIXED_POINT)) {
-					Mugann.gommage(player);
+					Mugann.gommage(player, false);
 				}
 			});
 		}

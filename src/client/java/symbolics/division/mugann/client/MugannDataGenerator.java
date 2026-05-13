@@ -17,6 +17,7 @@ import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -37,6 +38,7 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 		var pack = fabricDataGenerator.createPack();
 		pack.addProvider(ModelProvider::new);
 		pack.addProvider(MugannItemTags::new);
+		pack.addProvider(MugannBlockTags::new);
 	}
 
 	public static final class ModelProvider extends FabricModelProvider {
@@ -178,6 +180,18 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 		@Override
 		protected void addTags(HolderLookup.Provider registries) {
 			valueLookupBuilder(Mugann.MUGANN).add(Mugann.OCEANS_OF_GRIEF, Mugann.LOVE_LETTERS_TO_THE_MOON, Mugann.BELL_COLLECTOR);
+		}
+	}
+
+	public static class MugannBlockTags extends FabricTagsProvider.BlockTagsProvider {
+
+		public MugannBlockTags(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registryLookupFuture) {
+			super(output, registryLookupFuture);
+		}
+
+		@Override
+		protected void addTags(HolderLookup.Provider registries) {
+			valueLookupBuilder(BlockTags.CLIMBABLE).add(MugannBlocks.LADDERS.blocks.values().toArray(Block[]::new));
 		}
 	}
 }

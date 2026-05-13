@@ -70,7 +70,7 @@ public class Mugann implements ModInitializer {
 		}
 
 		protected void forgive(LivingEntity user, Entity target) {
-			gommage(target);
+			gommage(target, true);
 		}
 
 		@Override
@@ -164,6 +164,7 @@ public class Mugann implements ModInitializer {
 
 			@Override
 			protected void forgive(LivingEntity user, Entity target) {
+				gommage(target, false);
 			}
 		}
 
@@ -203,6 +204,11 @@ public class Mugann implements ModInitializer {
 
 	public static final AttachmentType<Float> CURSE = AttachmentRegistry.create(
 			id("curse"),
+			builder -> builder.persistent(Codec.FLOAT).syncWith(ByteBufCodecs.FLOAT, AttachmentSyncPredicate.targetOnly())
+	);
+
+	public static final AttachmentType<Float> FALSE_CURSE = AttachmentRegistry.create(
+			id("false_curse"),
 			builder -> builder.persistent(Codec.FLOAT).syncWith(ByteBufCodecs.FLOAT, AttachmentSyncPredicate.targetOnly())
 	);
 
@@ -270,6 +276,13 @@ public class Mugann implements ModInitializer {
 				} else {
 					entity.setAttached(CURSE, v + cpt);
 				}
+			} else if (entity.hasAttached(FALSE_CURSE)) {
+				float v = entity.getAttached(FALSE_CURSE);
+				if (v > 1) {
+					entity.removeAttached(FALSE_CURSE);
+				} else {
+					entity.setAttached(FALSE_CURSE, v + cpt * 8);
+				}
 			}
 		}
 	}
@@ -302,11 +315,16 @@ public class Mugann implements ModInitializer {
 		}
 	}
 
-	public static void gommage(Entity target) {
-		target.setAttached(CURSE, 0f);
-		if (target instanceof ServerPlayer p) {
-			Blade.setDisplacement(p);
+	public static void gommage(Entity target, boolean real) {
+		if (target.hasAttached(NOTHING_BORNE) || target.level().isClientSide()) return;
+		if (real) {
+			target.setAttached(CURSE, 0f);
+			if (target instanceof ServerPlayer p) {
+				Blade.setDisplacement(p);
+			}
+		} else {
+			target.setAttached(FALSE_CURSE, 0f);
+			target.level().playSound(null, target.blockPosition(), SoundEvents.BELL_RESONATE, SoundSource.PLAYERS, 0.5f, 0.5f);
 		}
 	}
-
 }
