@@ -1,13 +1,19 @@
 package symbolics.division.mugann.client.mixin;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
+import net.minecraft.client.renderer.state.GameRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -20,6 +26,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import symbolics.division.mugann.Mugann;
 import symbolics.division.mugann.MugannTags;
@@ -102,15 +109,43 @@ public class GameRendererMixin {
 	@Final
 	private FeatureRenderDispatcher featureRenderDispatcher;
 
-	@Inject(
-			method = "renderLevel",
-			at = @At("HEAD"),
-			cancellable = true
-	)
-	public void derender(final DeltaTracker deltaTracker, CallbackInfo ci) {
+//	@Inject(
+//			method = "renderLevel",
+//			at = @At("HEAD"),
+//			cancellable = true
+//	)
+//	public void derender(final DeltaTracker deltaTracker, CallbackInfo ci) {
+//		if (mugann$internalized(Minecraft.getInstance().player)) {
+//			this.featureRenderDispatcher.clearSubmitNodes();
+//			ci.cancel();
+//		}
+//	}
+
+	@Shadow
+	@Final
+	private Minecraft minecraft;
+
+	@Shadow
+	@Final
+	private GameRenderState gameRenderState;
+
+	// thank uuuu iridith <33333
+	@Definition(id = "shouldRenderLevel", local = @Local(type = boolean.class, name = "shouldRenderLevel"))
+	@Expression("shouldRenderLevel")
+	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V"),
+			slice = @Slice(from = @At("MIXINEXTRAS:EXPRESSION"), to = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/fog/FogRenderer;endFrame()V")))
+	private void fairyCollaboration(DeltaTracker deltaTracker, boolean advanceGameTime, CallbackInfo ci) {
 		if (mugann$internalized(Minecraft.getInstance().player)) {
-			this.featureRenderDispatcher.clearSubmitNodes();
-			ci.cancel();
+			RenderTarget mainRenderTarget = minecraft.getMainRenderTarget();
+			// idk if this is necessary. GameRenderer doesn't bother checking
+			if (mainRenderTarget.getColorTexture() != null && mainRenderTarget.getDepthTexture() != null) {
+				// could probably just clear color..? but what does it really matter
+				RenderSystem.getDevice()
+						.createCommandEncoder()
+						.clearColorAndDepthTextures(
+								mainRenderTarget.getColorTexture(), gameRenderState.guiRenderState.clearColorOverride, mainRenderTarget.getDepthTexture(), 1.0
+						);
+			}
 		}
 	}
 
