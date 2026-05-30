@@ -31,6 +31,7 @@ import symbolics.division.mugann.block.MouldingBlock;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 
 public class MugannDataGenerator implements DataGeneratorEntrypoint {
 	@Override
@@ -49,7 +50,7 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 		ModelTemplate mouldingTemplateLower = createModelTemplate("block/moulding_template_lower", "", TextureSlot.TEXTURE);
 		ModelTemplate mouldingTemplateUpper = createModelTemplate("block/moulding_template_upper", "", TextureSlot.TEXTURE);
 
-		ModelTemplate grimoireAltTemplate = createModelTemplate("item/grimoire_alt", "", TextureSlot.LAYER0);
+		ModelTemplate grimoireAltTemplate = createModelTemplate("item/grimoire_alt", "", TextureSlot.LAYER0, TextureSlot.LAYER1);
 
 		public ModelProvider(FabricPackOutput output) {
 			super(output);
@@ -153,6 +154,8 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 			gen.createNonTemplateModelBlock(block, Blocks.LADDER);
 		}
 
+		private static final Pattern RESARCH_TOMES = Pattern.compile("grimoire_(key|eye|album|written)");
+
 		@Override
 		public void generateItemModels(ItemModelGenerators itemModelGenerators) {
 			for (var ladder : MugannBlocks.LADDERS.blocks.values()) {
@@ -161,9 +164,15 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 
 			for (Block grim : MugannBlocks.GRIMS.values()) {
 				Item item = grim.asItem();
-				Material material = new Material(BuiltInRegistries.BLOCK.getKey(grim).withPrefix("block/"));
+				var key = BuiltInRegistries.BLOCK.getKey(grim);
+				String path = key.getPath();
+				var matcher = RESARCH_TOMES.matcher(path);
+				boolean research = matcher.find();
+				Material material = new Material(key.withPrefix("block/"));
+				Material pageMaterial = new Material(Mugann.id("block/pages" + (research ? "" : "_old")));
 				ItemModel.Unbaked blockModel = ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(grim, "_bottom"));
-				ItemModel.Unbaked openModel = ItemModelUtils.plainModel(grimoireAltTemplate.create(item, TextureMapping.layer0(material), itemModelGenerators.modelOutput));
+				var mapping = new TextureMapping().put(TextureSlot.LAYER0, pageMaterial).put(TextureSlot.LAYER1, material);
+				ItemModel.Unbaked openModel = ItemModelUtils.plainModel(grimoireAltTemplate.create(item, mapping, itemModelGenerators.modelOutput));
 				itemModelGenerators.itemModelOutput.accept(item, ItemModelGenerators.createFlatModelDispatch(
 						blockModel, openModel
 				));
@@ -180,6 +189,10 @@ public class MugannDataGenerator implements DataGeneratorEntrypoint {
 		@Override
 		protected void addTags(HolderLookup.Provider registries) {
 			valueLookupBuilder(Mugann.MUGANN).add(Mugann.OCEANS_OF_GRIEF, Mugann.LOVE_LETTERS_TO_THE_MOON, Mugann.BELL_COLLECTOR);
+		}
+
+		private Item grim(String id) {
+			return MugannBlocks.GRIMS.get(id).asItem();
 		}
 	}
 

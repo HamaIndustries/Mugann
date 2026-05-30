@@ -1,6 +1,7 @@
 {
   "parent": "mugann:item/grimoire_alt",
   "textures": {
-    "layer0": "mugann:block/grimoire_botany"
+    "layer0": "mugann:block/pages_old",
+    "layer1": "mugann:block/grimoire_botany"
   }
 }

@@ -71,7 +71,7 @@ public class MugannBlocks {
 			"album", "botany", "eye", "key", "library", "tattered", "tome", "written", "insightful"
 	};
 
-	public static final Map<String, Block> GRIMS = new HashMap<>();
+	public static final Map<String, GrimoireBlock> GRIMS = new HashMap<>();
 	public static final Map<String, Block> VGRIMS = new HashMap<>();
 
 	static {
