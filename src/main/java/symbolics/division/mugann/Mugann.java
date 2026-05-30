@@ -152,7 +152,9 @@ public class Mugann implements ModInitializer {
 			if (owner.tickCount % 5 == 0 && owner instanceof ServerPlayer player && !player.hasAttached(NOTHING_BORNE)) {
 				player.getInventory().removeItem(itemStack);
 				player.setAttached(CURSE, 0f);
-				player.setAttached(HEALING, Unit.INSTANCE);
+				if (itemStack.is(BELL_COLLECTOR)) {
+					player.setAttached(HEALING, Unit.INSTANCE);
+				}
 			}
 		}
 
