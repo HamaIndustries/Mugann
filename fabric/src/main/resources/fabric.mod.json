@@ -3,9 +3,9 @@
   "id": "mugann",
   "version": "${version}",
   "name": "Mugann: on the Study of Curses",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "",
   "authors": [
-    "Me!"
+    ""
   ],
   "contact": {
     "homepage": "https://fabricmc.net/",
@@ -16,10 +16,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "symbolics.division.mugann.fabric.ExampleModFabric"
+      "symbolics.division.mugann.fabric.MugannModFabric"
     ],
     "client": [
-      "symbolics.division.mugann.fabric.client.ExampleModFabricClient"
+      "symbolics.division.mugann.fabric.client.MugannModFabricClient"
     ]
   },
   "mixins": [

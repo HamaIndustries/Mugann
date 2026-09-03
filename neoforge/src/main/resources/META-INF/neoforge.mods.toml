@@ -7,9 +7,9 @@ license = "Insert License Here"
 modId = "mugann"
 version = "${version}"
 displayName = "Mugann: on the Study of Curses"
-authors = "Me!"
+authors = ""
 description = '''
-This is an example description! Tell everyone what your mod is about!
+
 '''
 #logoFile = ""
 
