@@ -1,17 +1,17 @@
 package symbolics.division.mugann.xplat;
 
-import com.google.common.base.Suppliers;
-import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrarManager;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import symbolics.division.mugann.Mugann;
 import symbolics.division.mugann.Platform;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 // wrapper for architectury API because I don't want to get pinned down by it
@@ -20,33 +20,27 @@ import java.util.function.Supplier;
 // tldr, put as much architectury in here as possible,
 // and proxy to the actual platform if it doesnt exist
 public class XPlatImpl implements Platform {
+	private final RegistrarManager REGISTRIES = RegistrarManager.get(Mugann.ID);
 
-    // https://github.com/architectury/architectury-templates/blob/master/templates/api_1_20/common/src/main/java/net/examplemod/ExampleMod.java
-    private static final Supplier<RegistrarManager> REGISTRIES = Suppliers.memoize(() -> RegistrarManager.get(Mugann.ID));
+	private final Platform wrapped;
 
-    // :D
-    private static final Map<ResourceKey<Registry<?>>, DeferredRegister<?>> deferredRegisters = new HashMap<>();
+	public XPlatImpl(Platform wrappedPlatform) {
+		this.wrapped = wrappedPlatform;
+	}
 
-    @SuppressWarnings("unchecked")
-    private static <T> DeferredRegister<T> getRegister(ResourceKey<Registry<T>> registryKey) {
-        // :D :D :D
-        return (DeferredRegister<T>) deferredRegisters.computeIfAbsent((ResourceKey<Registry<?>>) (Object) registryKey, r -> DeferredRegister.create(Mugann.ID, registryKey));
-    }
+	@Override
+	public CreativeModeTab.Builder creativeTabBuilder() {
+		return wrapped.creativeTabBuilder();
+	}
 
-    private final Platform wrapped;
+	@Override
+	public <T, E extends T> Supplier<E> register(ResourceKey<Registry<T>> registry, ResourceLocation key, Supplier<E> entry) {
+		return REGISTRIES.get(registry).register(key, entry);
+	}
 
-    public XPlatImpl(Platform wrappedPlatform) {
-        this.wrapped = wrappedPlatform;
-    }
-
-    @Override
-    public CreativeModeTab.Builder creativeTabBuilder() {
-        return wrapped.creativeTabBuilder();
-    }
-
-    @Override
-    public <T, E extends T> E register(ResourceKey<Registry<T>> registry, ResourceLocation key, E entry) {
-        RegistrarManager.get(Mugann.ID).forRegistry(registry, reg -> reg.register(key, () -> entry));
-        return entry;
-    }
+	public <T, E extends T> void registerBlockItem(ResourceLocation key, Function<Block, Item> callback) {
+		REGISTRIES.get(Registries.BLOCK).delegate(key).listen(block ->
+				REGISTRIES.get(Registries.ITEM).register(key, () -> callback.apply(block))
+		);
+	}
 }

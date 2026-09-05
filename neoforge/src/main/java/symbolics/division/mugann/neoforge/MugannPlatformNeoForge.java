@@ -7,18 +7,20 @@ import net.minecraft.world.item.CreativeModeTab;
 import org.apache.commons.lang3.NotImplementedException;
 import symbolics.division.mugann.Platform;
 
+import java.util.function.Supplier;
+
 public class MugannPlatformNeoForge implements Platform {
-    private static <T> T proxy() {
-        throw new NotImplementedException("This method should be handled by the xplat wrapper");
-    }
+	private static <T> T proxy() {
+		throw new NotImplementedException("This method should be handled by the xplat wrapper");
+	}
 
-    @Override
-    public CreativeModeTab.Builder creativeTabBuilder() {
-        return CreativeModeTab.builder();
-    }
+	@Override
+	public CreativeModeTab.Builder creativeTabBuilder() {
+		return CreativeModeTab.builder();
+	}
 
-    @Override
-    public <T, E extends T> E register(ResourceKey<Registry<T>> registry, ResourceLocation key, E entry) {
-        return proxy();
-    }
+	@Override
+	public <T, E extends T> Supplier<E> register(ResourceKey<Registry<T>> registry, ResourceLocation key, Supplier<E> entry) {
+		return proxy();
+	}
 }

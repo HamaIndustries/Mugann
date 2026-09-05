@@ -5,8 +5,10 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 
-public interface Platform {
-    CreativeModeTab.Builder creativeTabBuilder();
+import java.util.function.Supplier;
 
-    <T, E extends T> E register(ResourceKey<Registry<T>> registry, ResourceLocation key, E entry);
+public interface Platform {
+	CreativeModeTab.Builder creativeTabBuilder();
+
+	<T, E extends T> Supplier<E> register(ResourceKey<Registry<T>> registry, ResourceLocation key, Supplier<E> entry);
 }
