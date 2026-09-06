@@ -20,6 +20,9 @@
     ],
     "client": [
       "symbolics.division.mugann.fabric.client.MugannModFabricClient"
+    ],
+    "fabric-datagen": [
+      "symbolics.division.mugann.fabric.client.MugannDataGenerator"
     ]
   },
   "mixins": [

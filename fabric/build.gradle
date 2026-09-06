@@ -52,3 +52,10 @@ shadowJar {
 remapJar {
     inputFile.set shadowJar.archiveFile
 }
+
+fabricApi {
+    configureDataGeneration() {
+        client = true
+        outputDirectory = project(":common").file("src/main/generated/resources")
+    }
+}

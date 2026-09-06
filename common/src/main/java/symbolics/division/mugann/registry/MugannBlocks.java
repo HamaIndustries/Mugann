@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.jetbrains.annotations.Nullable;
 import symbolics.division.mugann.Mugann;
+import symbolics.division.mugann.block.GrimoireBlock;
 import symbolics.division.mugann.xplat.XPlatImpl;
 
 import java.util.ArrayList;
@@ -42,12 +43,6 @@ public class MugannBlocks {
 			for (String id : types) blocks.put(id, register(prefix + "_" + id, factory, properties, true));
 		}
 
-//		public BlockType(String prefix,
-//						 Function<BlockBehaviour.Properties, T> factory,
-//						 String... types) {
-//			this(prefix, factory, BlockBehaviour.Properties.of(), types);
-//		}
-
 		@Nullable
 		public T get(String name) {
 			return blocks.get(name).get();
@@ -59,13 +54,12 @@ public class MugannBlocks {
 		return element;
 	}
 
-	// Thank you fabric wiki copyright fabric wiki Attribution-NonCommercial-ShareAlike 4.0 International
 	private static <T extends Block> Supplier<T> register(String name, Function<BlockBehaviour.Properties, T> blockFactory, BlockBehaviour.Properties settings, boolean shouldRegisterItem) {
 		ResourceLocation id = Mugann.id(name);
 		Supplier<T> block = () -> add(blockFactory.apply(settings), BLOCKS);
 		Mugann.platform().register(Registries.BLOCK, id, block);
 		if (shouldRegisterItem) {
-			//TODO fix abstraction blurring, make this an api call
+			//TODO make this an api call
 			((XPlatImpl) Mugann.platform()).registerBlockItem(id, b -> new BlockItem(b, new Item.Properties()));
 		}
 		return block;
@@ -92,6 +86,11 @@ public class MugannBlocks {
 	public static final BlockType<Block> RUGS = new BlockType<>(
 			"rug", GlazedTerracottaBlock::new, Blocks.WHITE_GLAZED_TERRACOTTA.properties(),
 			"magical", "night", "plum", "gloaming"
+	);
+
+	public static final BlockType<GrimoireBlock> GRIMS = new BlockType<>(
+			"grimoire", GrimoireBlock::new, BlockBehaviour.Properties.of(),
+			"album", "botany", "eye", "key", "library", "tattered", "tome", "written", "insightful"
 	);
 
 //	public static final ResourceKey<CreativeModeTab> CREATIVE_TAB_KEY = ResourceKey.create(
