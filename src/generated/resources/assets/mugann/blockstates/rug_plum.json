@@ -1,18 +1,18 @@
 {
   "variants": {
     "facing=east": {
-      "model": "mugann:block/rug_plum",
+      "model": "mugann:block/plum",
       "y": 90
     },
     "facing=north": {
-      "model": "mugann:block/rug_plum"
+      "model": "mugann:block/plum"
     },
     "facing=south": {
-      "model": "mugann:block/rug_plum",
+      "model": "mugann:block/plum",
       "y": 180
     },
     "facing=west": {
-      "model": "mugann:block/rug_plum",
+      "model": "mugann:block/plum",
       "y": 270
     }
   }

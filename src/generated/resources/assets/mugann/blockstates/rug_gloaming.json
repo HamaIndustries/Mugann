@@ -1,18 +1,18 @@
 {
   "variants": {
     "facing=east": {
-      "model": "mugann:block/rug_gloaming",
+      "model": "mugann:block/gloaming",
       "y": 90
     },
     "facing=north": {
-      "model": "mugann:block/rug_gloaming"
+      "model": "mugann:block/gloaming"
     },
     "facing=south": {
-      "model": "mugann:block/rug_gloaming",
+      "model": "mugann:block/gloaming",
       "y": 180
     },
     "facing=west": {
-      "model": "mugann:block/rug_gloaming",
+      "model": "mugann:block/gloaming",
       "y": 270
     }
   }
